@@ -2,10 +2,6 @@ import React from 'react'
 import BookModel from '../../../models/BookModel'
 
 const ReturnBook: React.FC<{book: BookModel}> = (props) => {
-  console.log('aaaa')
-  console.log(props)
-  console.log('bbbb')
-  console.log(props.book)
   return (
     <div className='col-xs-6 col-sm-6 col-md-4 col-lg-3 mb-3'>
       <div className='text-center'>

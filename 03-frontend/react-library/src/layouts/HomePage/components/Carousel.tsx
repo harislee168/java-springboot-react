@@ -3,43 +3,13 @@ import ReturnBook from './ReturnBook'
 import BookModel from '../../../models/BookModel'
 import axios from 'axios'
 import SpinnerLoading from '../../Utils/SpinnerLoading'
+import useBooksApi from '../../../api/useBooksApi'
 
 const Carousel = () => {
 
-  const [books, setBooks] = useState<BookModel[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [httpError, setHttpError] = useState(null)
-
-  useEffect(() => {
-    const baseUrl: string = "http://localhost:8080/api/books"
-    const url: string = `${baseUrl}?page=0&size=9`
-
-    axios.get(url)
-      .then((response) => {
-        const responseData = response.data._embedded.books
-        const loadedBooks: BookModel[] = [];
-
-        for (const key in responseData) {
-          loadedBooks.push({
-            id: responseData[key].id,
-            title: responseData[key].title,
-            author: responseData[key].author,
-            description: responseData[key].description,
-            copies: responseData[key].copies,
-            copiesAvailable: responseData[key].copiesAvailable,
-            category: responseData[key].category,
-            img: responseData[key].img
-          })
-        }
-
-        setBooks(loadedBooks);
-        setIsLoading(false);
-      })
-      .catch((error: any) => {
-        setIsLoading(false);
-        setHttpError(error.message);
-      })
-  }, [])
+  const bookProps = { pageNumber: 0, size: 9 }
+  const { books, isLoading, httpError } = useBooksApi({ book: bookProps });
+  console.log(books);
 
   if (isLoading) {
     return (
@@ -50,7 +20,7 @@ const Carousel = () => {
   if (httpError) {
     return (
       <div className='container m-5'>
-        <p>{httpError}</p>
+        <p>{httpError.toString()}</p>
       </div>
     )
   }
@@ -127,4 +97,5 @@ const Carousel = () => {
     </div>
   )
 }
+
 export default Carousel
