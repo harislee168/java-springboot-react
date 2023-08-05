@@ -1,15 +1,26 @@
 import React, {useState, useEffect} from 'react'
 import BookModel from '../../models/BookModel'
 import axios from 'axios'
+import useBooksApi from '../../api/useBooksApi'
+import SpinnerLoading from '../Utils/SpinnerLoading'
 
 const SearchBooksPage = () => {
-  const [books, setBooks] = useState<BookModel[]>([]);
-  const [isLoading, setIsLoading]= useState(true);
-  const [httpError, setHttpError] = useState(null);
+  const searchBooksProps = {pageNumber: 0, size: 5}
+  const { books, isLoading, httpError } =  useBooksApi({book:searchBooksProps});
 
-  // useEffect(() => {
-  //   const baseUrl = ''
-  // }, [])
+  if (isLoading) {
+    return (
+      <SpinnerLoading />
+    )
+  }
+
+  if (httpError) {
+    return (
+      <div className='container m-5'>
+        <p>{httpError.toString()}</p>
+      </div>
+    )
+  }
 
   return (
     <div>

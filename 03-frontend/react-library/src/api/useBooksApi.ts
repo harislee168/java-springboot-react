@@ -46,7 +46,7 @@ const useBooksApi = (props: { book: booksProps }): useBooksApiReturnType => {
         setIsLoading(false);
         setHttpError(error.message);
       })
-  }, [])
+  }, [props.book.pageNumber, props.book.size])
 
   return { books, isLoading, httpError }
 }
