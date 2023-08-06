@@ -6,11 +6,21 @@ import SpinnerLoading from '../Utils/SpinnerLoading'
 import SearchBook from './components/SearchBook'
 import Pagination from '../Utils/Pagination'
 
+
+const categoriesArray = [
+  {key: 'all', value: 'All'},
+  {key: 'fe', value: 'Front End'},
+  {key: 'be', value: 'Back End'},
+  {key: 'data', value: 'Data'},
+  {key: 'devops', value: 'DevOps'},
+]
+
 const SearchBooksPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [booksPerPage] = useState<number>(3)
   const [searchText, setSearchtext] = useState<string>('')
   const [searchUrl, setSearchUrl] = useState<string>('')
+  const [categorySelection, setCategorySelection] = useState<string>('Category')
 
   const paginateHandler = (pageNumber: number) => setCurrentPage(pageNumber);
   const searchButtonHandler = () => {
@@ -21,6 +31,21 @@ const SearchBooksPage = () => {
       setSearchUrl(`/search/findByTitleContaining?title=${searchText}&page=0&size=${booksPerPage}`)
     }
   }
+  const categoryHandler = ((valueSelected: string) => {
+    if (valueSelected === 'all') {
+      setCategorySelection('All')
+      setSearchUrl('');
+    }
+    else {
+      for (const category of categoriesArray) {
+        if (category.key === valueSelected) {
+          setCategorySelection(category.value);
+        }
+      }
+      setSearchUrl(`/search/findByCategory?category=${valueSelected}&page=0&size=${booksPerPage}`)
+    }
+  })
+
   const { books, isLoading, httpError, returnTotalElements, returnTotalPages } =
     useBooksApi({ currentPage: currentPage, booksPerPage: booksPerPage, searchUrl: searchUrl });
 
@@ -58,10 +83,19 @@ const SearchBooksPage = () => {
               <div className='dropdown'>
                 <button className='btn btn-secondary dropdown-toggle' type='button'
                   id='dropdownMenuButton1' data-bs-toggle='dropdown' aria-expanded='false'>
-                  Category
+                  {categorySelection}
                 </button>
                 <ul className='dropdown-menu' aria-labelledby='dropdownMenuButton1'>
-                  <li>
+                  {
+                    categoriesArray.map((category) => {
+                      return (
+                        <li key={category.key} onClick={() => categoryHandler(category.key)}>
+                          <a href='#' className='dropdown-item'>{category.value}</a>
+                        </li>
+                      )
+                    })
+                  }
+                  {/* <li>
                     <a href='#' className='dropdown-item'>All</a>
                   </li>
                   <li>
@@ -75,7 +109,7 @@ const SearchBooksPage = () => {
                   </li>
                   <li>
                     <a href='#' className='dropdown-item'>DevOps</a>
-                  </li>
+                  </li> */}
                 </ul>
               </div>
             </div>
