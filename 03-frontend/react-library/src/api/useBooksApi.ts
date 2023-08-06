@@ -4,7 +4,8 @@ import BookModel from '../models/BookModel'
 
 type booksProps = {
   currentPage: number,
-  booksPerPage: number
+  booksPerPage: number,
+  searchUrl: string
 }
 
 type useBooksApiReturnType = {
@@ -15,8 +16,6 @@ type useBooksApiReturnType = {
   returnTotalPages: number
 };
 
-const bookBaseUrl = 'http://localhost:8080/api/books'
-
 const useBooksApi = (props: booksProps): useBooksApiReturnType => {
   const [books, setBooks] = useState<BookModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +24,15 @@ const useBooksApi = (props: booksProps): useBooksApiReturnType => {
   const [returnTotalPages, setReturnTotalPages] = useState<number>(1);
 
   useEffect(() => {
-    const url = `${bookBaseUrl}?page=${props.currentPage-1}&size=${props.booksPerPage}`
+    let url = 'http://localhost:8080/api/books'
+
+    if (props.searchUrl === '') {
+      url += `?page=${props.currentPage-1}&size=${props.booksPerPage}`
+    }
+    else {
+      url += props.searchUrl;
+    }
+
     axios.get(url)
       .then((response) => {
         const responseData = response.data._embedded.books;
@@ -52,7 +59,8 @@ const useBooksApi = (props: booksProps): useBooksApiReturnType => {
         setIsLoading(false);
         setHttpError(error.message);
       })
-  }, [props.currentPage])
+      window.scrollTo(0, 0);
+  }, [props.currentPage, props.searchUrl])
 
   return { books, isLoading, httpError, returnTotalElements, returnTotalPages }
 }
