@@ -30,7 +30,7 @@ const useBooksApi = (props: booksProps): useBooksApiReturnType => {
       url += `?page=${props.currentPage-1}&size=${props.booksPerPage}`
     }
     else {
-      url += props.searchUrl;
+      url += props.searchUrl + `&page=${props.currentPage - 1}&size=${props.booksPerPage}`;
     }
 
     axios.get(url)

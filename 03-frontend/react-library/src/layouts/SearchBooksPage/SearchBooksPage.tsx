@@ -24,14 +24,20 @@ const SearchBooksPage = () => {
 
   const paginateHandler = (pageNumber: number) => setCurrentPage(pageNumber);
   const searchButtonHandler = () => {
+    setCurrentPage(1);
+    setCategorySelection('Category');
+
     if (searchText === '') {
       setSearchUrl('')
     }
     else {
-      setSearchUrl(`/search/findByTitleContaining?title=${searchText}&page=0&size=${booksPerPage}`)
+      setSearchUrl(`/search/findByTitleContaining?title=${searchText}`)
     }
   }
   const categoryHandler = ((valueSelected: string) => {
+    setCurrentPage(1);
+    setSearchtext('');
+
     if (valueSelected === 'all') {
       setCategorySelection('All')
       setSearchUrl('');
@@ -42,7 +48,7 @@ const SearchBooksPage = () => {
           setCategorySelection(category.value);
         }
       }
-      setSearchUrl(`/search/findByCategory?category=${valueSelected}&page=0&size=${booksPerPage}`)
+      setSearchUrl(`/search/findByCategory?category=${valueSelected}`)
     }
   })
 
@@ -75,7 +81,7 @@ const SearchBooksPage = () => {
             <div className='col-6'>
               <div className='d-flex'>
                 <input className='form-control me-2' type='search' placeholder='Search your book'
-                  aria-labelledby='Search' onChange={(e) => setSearchtext(e.target.value)} />
+                  aria-labelledby='Search' value={searchText} onChange={(e) => setSearchtext(e.target.value)} />
                 <button className='btn btn-outline-success' onClick={searchButtonHandler}>Search</button>
               </div>
             </div>
