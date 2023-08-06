@@ -9,7 +9,8 @@ function App() {
   return (
     <div>
       <Navbar />
-      <SearchBooksPage />
+      <HomePage />
+      {/* <SearchBooksPage /> */}
       <Footer />
     </div>
   );

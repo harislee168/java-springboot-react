@@ -7,8 +7,8 @@ import useBooksApi from '../../../api/useBooksApi'
 
 const Carousel = () => {
 
-  const bookProps = { pageNumber: 0, size: 9 }
-  const { books, isLoading, httpError } = useBooksApi({ book: bookProps });
+
+  const { books, isLoading, httpError } = useBooksApi({currentPage:1, booksPerPage:9});
   console.log(books);
 
   if (isLoading) {
