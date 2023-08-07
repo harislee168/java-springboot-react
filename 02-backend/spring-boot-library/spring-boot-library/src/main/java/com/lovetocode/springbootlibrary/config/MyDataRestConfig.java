@@ -1,6 +1,7 @@
 package com.lovetocode.springbootlibrary.config;
 
 import com.lovetocode.springbootlibrary.entity.Book;
+import com.lovetocode.springbootlibrary.entity.Review;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
@@ -17,8 +18,10 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
                 HttpMethod.DELETE, HttpMethod.PATCH};
 
         config.exposeIdsFor(Book.class);
+        config.exposeIdsFor(Review.class);
 
         disableHTTPMethods(Book.class, config, theUnsupportedActions);
+        disableHTTPMethods(Review.class, config, theUnsupportedActions);
 
         String theAllowedOrigins = "http://localhost:3000";
         cors.addMapping(config.getBasePath()+ "/**").allowedOrigins(theAllowedOrigins);
