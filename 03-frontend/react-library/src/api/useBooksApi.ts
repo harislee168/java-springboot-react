@@ -16,6 +16,16 @@ type useBooksApiReturnType = {
   returnTotalPages: number
 };
 
+type singleBookProps = {
+  bookId: string
+}
+
+type useSingleBookApiReturnType = {
+  book: BookModel | undefined,
+  isLoading: boolean,
+  httpError: null | Error
+}
+
 const useBooksApi = (props: booksProps): useBooksApiReturnType => {
   const [books, setBooks] = useState<BookModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +37,7 @@ const useBooksApi = (props: booksProps): useBooksApiReturnType => {
     let url = 'http://localhost:8080/api/books'
 
     if (props.searchUrl === '') {
-      url += `?page=${props.currentPage-1}&size=${props.booksPerPage}`
+      url += `?page=${props.currentPage - 1}&size=${props.booksPerPage}`
     }
     else {
       url += props.searchUrl + `&page=${props.currentPage - 1}&size=${props.booksPerPage}`;
@@ -59,10 +69,44 @@ const useBooksApi = (props: booksProps): useBooksApiReturnType => {
         setIsLoading(false);
         setHttpError(error.message);
       })
-      window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
   }, [props.currentPage, props.searchUrl])
 
   return { books, isLoading, httpError, returnTotalElements, returnTotalPages }
+}
+
+export const useGetSingleBookApi = (props: singleBookProps): useSingleBookApiReturnType => {
+
+  const [book, setBook] = useState<BookModel>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [httpError, setHttpError] = useState(null);
+
+  useEffect(() => {
+    const url = `http://localhost:8080/api/books/${props.bookId}`
+
+    axios.get(url)
+      .then((response) => {
+        const responseJson = response.data;
+        const loadedBook: BookModel = {
+          id: responseJson.id,
+          title: responseJson.title,
+          author: responseJson.author,
+          description: responseJson.description,
+          copies: responseJson.copies,
+          copiesAvailable: responseJson.copiesAvailable,
+          category: responseJson.category,
+          img: responseJson.img
+        }
+        setBook(loadedBook);
+        setIsLoading(false);
+      })
+      .catch((error: any) => {
+        setIsLoading(false);
+        setHttpError(error.message);
+      })
+  }, [])
+
+  return { book, isLoading, httpError }
 }
 
 export default useBooksApi

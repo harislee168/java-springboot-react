@@ -8,7 +8,7 @@ const LibraryServices = () => {
           <h1 className='display-4 fw-bold'>Can't find what you are looking for</h1>
           <p className='lead'>If you cannot find what  you are looking for, send our library admin's a personal message</p>
           <div className='d-grid gap-2 justify-content-md-start mb-4 mb-lg-3'>
-            <a className='btn main-color btn-lg text-white' href='#'>
+            <a className='btn btn-primary btn-lg text-white' href='#'>
               Sign up
             </a>
           </div>
