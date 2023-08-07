@@ -9,8 +9,9 @@ import CheckoutAndReviewBox from './CheckoutAndReviewBox';
 const BookCheckoutPage = () => {
 
   const bookId = (window.location.pathname).split('/')[2];
-  const { book, isLoading, httpError } = useGetSingleBookApi({ bookId: bookId })
-  if (isLoading) {
+  const { book, isLoading, httpError, reviews, totalStars, isLoadingReview } = useGetSingleBookApi({ bookId: bookId })
+
+  if (isLoading || isLoadingReview) {
     return (
       <SpinnerLoading />
     )

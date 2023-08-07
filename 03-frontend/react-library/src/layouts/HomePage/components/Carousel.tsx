@@ -5,10 +5,7 @@ import useBooksApi from '../../../api/useBooksApi'
 import { Link } from 'react-router-dom'
 
 const Carousel = () => {
-
-
   const { books, isLoading, httpError } = useBooksApi({currentPage:1, booksPerPage:9, searchUrl:''});
-  console.log(books);
 
   if (isLoading) {
     return (
