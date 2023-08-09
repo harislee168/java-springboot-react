@@ -14,8 +14,6 @@ import LoginWidget from './Auth/LoginWidget';
 const oktaAuth = new OktaAuth(oktaConfig);
 
 const App = () => {
-
-
   const history = useHistory()
   const customAuthHandler = () => {
     history.push('/login')
