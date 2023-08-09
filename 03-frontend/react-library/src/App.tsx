@@ -19,9 +19,6 @@ const App = () => {
     history.push('/login')
   }
   const restoreOriginalUri = async( _oktaAuth: any, originalUri: any) => {
-    console.log('enter restore original uri')
-    console.log('_oktaAuth is:', _oktaAuth)
-    console.log('originalUri is:', originalUri)
     history.replace(toRelativeUrl(originalUri || '/', window.location.origin))
   }
 

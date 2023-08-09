@@ -4,10 +4,9 @@ import { useOktaAuth } from '@okta/okta-react'
 
 const Navbar = () => {
   const { oktaAuth, authState } = useOktaAuth();
-  const loginWithRedirect = () =>
-    oktaAuth.signInWithRedirect({ originalUri: "/" });
+
   const handleLogout = async () => oktaAuth.signOut();
-  console.log(authState);
+  console.log('authstate:', authState);
 
   return (
     <nav className='navbar navbar-expand-lg navbar-dark main-color py-3'>
