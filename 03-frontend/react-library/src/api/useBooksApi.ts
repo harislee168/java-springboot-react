@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import BookModel from '../models/BookModel'
 import ReviewModel from '../models/ReviewModel'
+import { useOktaAuth } from '@okta/okta-react'
 
 type booksProps = {
   currentPage: number,
@@ -30,6 +31,14 @@ type useSingleBookApiReturnType = {
   isLoadingReview: boolean
 }
 
+type useCurrentLoansCountReturnType = {
+  currentLoansCount: number,
+  isLoadingCurrentLoansCount: boolean;
+  currentLoanCountHttpError: null | Error
+}
+
+const baseUrl = process.env.REACT_APP_BASE_URL;
+
 const useBooksApi = (props: booksProps): useBooksApiReturnType => {
   const [books, setBooks] = useState<BookModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +47,7 @@ const useBooksApi = (props: booksProps): useBooksApiReturnType => {
   const [returnTotalPages, setReturnTotalPages] = useState<number>(1);
 
   useEffect(() => {
-    let url = 'http://localhost:8080/api/books'
+    let url = `${baseUrl}/api/books`
 
     if (props.searchUrl === '') {
       url += `?page=${props.currentPage - 1}&size=${props.booksPerPage}`
@@ -91,7 +100,7 @@ export const useGetSingleBookApi = (props: singleBookProps): useSingleBookApiRet
   const [isLoadingReview, setIsLoadingReview] = useState(true);
 
   useEffect(() => {
-    const url = `http://localhost:8080/api/books/${props.bookId}`
+    const url = `${baseUrl}/api/books/${props.bookId}`
 
     axios.get(url)
       .then((response) => {
@@ -116,7 +125,7 @@ export const useGetSingleBookApi = (props: singleBookProps): useSingleBookApiRet
   }, [])
 
   useEffect(() => {
-    const url = `http://localhost:8080/api/reviews/search/findByBookId?bookId=${props.bookId}`
+    const url = `${baseUrl}/api/reviews/search/findByBookId?bookId=${props.bookId}`
     let totalRatings: number = 0;
 
     axios.get(url)
@@ -151,6 +160,37 @@ export const useGetSingleBookApi = (props: singleBookProps): useSingleBookApiRet
   }, [])
 
   return { book, isLoading, httpError, reviews, totalStars, isLoadingReview }
+}
+
+export const useCurrentLoansCountApi = (): useCurrentLoansCountReturnType => {
+  const { authState } = useOktaAuth();
+  const [currentLoansCount, setCurrentLoansCount] = useState(0);
+  const [isLoadingCurrentLoansCount, setIsLoadingCurrentLoansCount] = useState(true);
+  const [currentLoanCountHttpError, setCurrentLoanCountHttpError] = useState(null);
+
+  useEffect(() => {
+    if (authState && authState.isAuthenticated) {
+      const url = `${baseUrl}/api/books/secure/currentloans/count`
+      console.log(url);
+      console.log(authState.accessToken?.accessToken);
+      axios.get(url, {
+        headers: {
+          Authorization:`Bearer ${authState.accessToken?.accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }).then((response) => {
+        console.log('response')
+        setIsLoadingCurrentLoansCount(false);
+        setCurrentLoansCount(response.data);
+      }).catch((error: any) => {
+        console.log('error')
+        setIsLoadingCurrentLoansCount(false);
+        setCurrentLoanCountHttpError(error.message);
+      })
+    }
+  }, [authState])
+
+  return { currentLoansCount, isLoadingCurrentLoansCount, currentLoanCountHttpError }
 }
 
 export default useBooksApi

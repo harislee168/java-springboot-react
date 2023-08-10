@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import BookModel from '../../models/BookModel'
-import { useGetSingleBookApi } from '../../api/useBooksApi';
+import { useGetSingleBookApi, useCurrentLoansCountApi } from '../../api/useBooksApi';
 import SpinnerLoading from '../Utils/SpinnerLoading';
 import StarReview from '../Utils/StarReview';
 import CheckoutAndReviewBox from './CheckoutAndReviewBox';
@@ -11,8 +11,9 @@ const BookCheckoutPage = () => {
 
   const bookId = (window.location.pathname).split('/')[2];
   const { book, isLoading, httpError, reviews, totalStars, isLoadingReview } = useGetSingleBookApi({ bookId: bookId })
+  const { currentLoansCount, isLoadingCurrentLoansCount, currentLoanCountHttpError } = useCurrentLoansCountApi();
 
-  if (isLoading || isLoadingReview) {
+  if (isLoading || isLoadingReview || isLoadingCurrentLoansCount) {
     return (
       <SpinnerLoading />
     )
@@ -22,6 +23,14 @@ const BookCheckoutPage = () => {
     return (
       <div className='container m-5'>
         <p>{httpError.toString()}</p>
+      </div>
+    )
+  }
+
+  if (currentLoanCountHttpError) {
+    return (
+      <div className='container m-5'>
+        <p>{currentLoanCountHttpError.toString()}</p>
       </div>
     )
   }
@@ -46,7 +55,7 @@ const BookCheckoutPage = () => {
               <StarReview rating={totalStars} size={32} />
             </div>
           </div>
-          <CheckoutAndReviewBox book={book} mobile={false} />
+          <CheckoutAndReviewBox book={book} mobile={false} currentLoansCount={currentLoansCount} />
         </div>
         <hr />
         <LatestReviews reviews={reviews} bookId={book?.id} mobile={false} />
@@ -68,7 +77,7 @@ const BookCheckoutPage = () => {
             <StarReview rating={totalStars} size={32} />
           </div>
         </div>
-        <CheckoutAndReviewBox book={book} mobile={true} />
+        <CheckoutAndReviewBox book={book} mobile={true} currentLoansCount={currentLoansCount} />
         <hr />
         <LatestReviews reviews={reviews} bookId={book?.id} mobile={true} />
       </div>
