@@ -101,21 +101,6 @@ const SearchBooksPage = () => {
                       )
                     })
                   }
-                  {/* <li>
-                    <a href='#' className='dropdown-item'>All</a>
-                  </li>
-                  <li>
-                    <a href='#' className='dropdown-item'>Front End</a>
-                  </li>
-                  <li>
-                    <a href='#' className='dropdown-item'>Back end</a>
-                  </li>
-                  <li>
-                    <a href='#' className='dropdown-item'>Data</a>
-                  </li>
-                  <li>
-                    <a href='#' className='dropdown-item'>DevOps</a>
-                  </li> */}
                 </ul>
               </div>
             </div>
@@ -135,7 +120,7 @@ const SearchBooksPage = () => {
                 <a href='#' type='button' className='btn main-color btn-md px-4 me md-2 fw-bold text-white'>Library Services</a>
               </div>
           }
-          {returnTotalElements > 1 && <Pagination currentPage={currentPage} totalPages={returnTotalPages} paginateHandler={paginateHandler} />}
+          {returnTotalPages > 1 && <Pagination currentPage={currentPage} totalPages={returnTotalPages} paginateHandler={paginateHandler} />}
         </div>
       </div>
     </div>

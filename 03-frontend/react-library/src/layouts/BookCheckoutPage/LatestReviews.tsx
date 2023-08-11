@@ -17,7 +17,7 @@ const LatestReviews:React.FC<{reviews: ReviewModel [], bookId: number | undefine
               return (<Review key={review.id} review={review} />)
             })}
             <div className='m-3'>
-              <Link type='button' className='btn btn-primary btn-md text-white' to='/#'>Reach all reviews</Link>
+              <Link type='button' className='btn btn-primary btn-md text-white' to={`/reviewlist/${props.bookId}`}>Reach all reviews</Link>
             </div>
           </React.Fragment>
           :
