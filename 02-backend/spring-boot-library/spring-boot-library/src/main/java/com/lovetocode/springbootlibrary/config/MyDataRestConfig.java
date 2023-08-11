@@ -1,5 +1,6 @@
 package com.lovetocode.springbootlibrary.config;
 
+import com.lovetocode.springbootlibrary.constant.ConstantVariable;
 import com.lovetocode.springbootlibrary.entity.Book;
 import com.lovetocode.springbootlibrary.entity.Review;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +24,7 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
         disableHTTPMethods(Book.class, config, theUnsupportedActions);
         disableHTTPMethods(Review.class, config, theUnsupportedActions);
 
-        String theAllowedOrigins = "http://localhost:3000";
-        cors.addMapping(config.getBasePath()+ "/**").allowedOrigins(theAllowedOrigins);
+        cors.addMapping(config.getBasePath()+ "/**").allowedOrigins(ConstantVariable.BASE_URL);
     }
 
     private void disableHTTPMethods(Class theClass, RepositoryRestConfiguration config,

@@ -1,13 +1,14 @@
 package com.lovetocode.springbootlibrary.controller;
 
 import ch.qos.logback.core.net.SyslogOutputStream;
+import com.lovetocode.springbootlibrary.constant.ConstantVariable;
 import com.lovetocode.springbootlibrary.entity.Book;
 import com.lovetocode.springbootlibrary.service.BookService;
 import com.lovetocode.springbootlibrary.utils.JWTExtraction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(ConstantVariable.BASE_URL)
 @RestController
 @RequestMapping(value="/api/books")
 public class BookController {
