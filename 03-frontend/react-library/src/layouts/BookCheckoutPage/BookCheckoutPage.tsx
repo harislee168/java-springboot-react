@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useOktaAuth } from '@okta/okta-react';
-import { useGetSingleBookApi, useCurrentLoansCountApi, useIsBookCheckout } from '../../api/useBooksApi';
+import { useGetSingleBookApi, useCurrentLoansCountApi, useIsBookCheckout, useHasUserLeftReview, postReviewApi, checkOutBookApi } from '../../api/useBooksApi';
 import SpinnerLoading from '../Utils/SpinnerLoading';
 import StarReview from '../Utils/StarReview';
 import CheckoutAndReviewBox from './CheckoutAndReviewBox';
@@ -11,12 +11,28 @@ const BookCheckoutPage = () => {
   const bookId = (window.location.pathname).split('/')[2];
   const { authState } = useOktaAuth();
   const [isBookCheckedOut, setIsBookCheckedOut] = useState(false);
+  const [hasUserLeftReview, setHasUserLeftReview] = useState(false);
+
   const { book, isLoading, httpError, reviews, totalStars, isLoadingReview } = useGetSingleBookApi({ bookId: bookId,
-    isBookCheckedOut: isBookCheckedOut })
+    isBookCheckedOut: isBookCheckedOut, hasUserLeftReview: hasUserLeftReview })
   const { currentLoansCount, isLoadingCurrentLoansCount, currentLoanCountHttpError } = useCurrentLoansCountApi({isBookCheckedOut:isBookCheckedOut})
   const { isLoadingIsBookCheckedOut, isBookCheckedOutHttpError } = useIsBookCheckout( {bookId: bookId, setIsBookCheckedOut:setIsBookCheckedOut})
+  const { isLoadingHasUserLeftReview, isLoadingHasUserLeftReviewHttpError } =
+    useHasUserLeftReview({bookId: bookId, setHasUserLeftReview: setHasUserLeftReview});
 
-  if (isLoading || isLoadingReview || isLoadingCurrentLoansCount || isLoadingIsBookCheckedOut) {
+  const checkoutBookHandler = () => {
+    checkOutBookApi({bookId: Number(bookId),
+      setIsBookCheckedOut: setIsBookCheckedOut, accessToken: authState?.accessToken?.accessToken})
+  }
+
+  const postReviewHandler = (rating: number, reviewDescription: string) => {
+    postReviewApi({rating: rating, bookId: Number(bookId), reviewDescription: reviewDescription, setHasUserLeftReview: setHasUserLeftReview,
+      accessToken: authState?.accessToken?.accessToken})
+  }
+
+
+  if (isLoading || isLoadingReview || isLoadingCurrentLoansCount || isLoadingIsBookCheckedOut
+    || isLoadingHasUserLeftReview) {
     return (
       <SpinnerLoading />
     )
@@ -46,6 +62,14 @@ const BookCheckoutPage = () => {
     )
   }
 
+  if (isLoadingHasUserLeftReviewHttpError) {
+    return (
+      <div className='container m-5'>
+        <p>{isLoadingHasUserLeftReviewHttpError.toString()}</p>
+      </div>
+    )
+  }
+
   return (
     <div>
       <div className='container d-none d-lg-block'>
@@ -67,8 +91,8 @@ const BookCheckoutPage = () => {
             </div>
           </div>
           <CheckoutAndReviewBox book={book} mobile={false} currentLoansCount={currentLoansCount}
-            isAuthenticated={authState?.isAuthenticated} accessToken={authState?.accessToken?.accessToken}
-            setIsBookCheckedOut={setIsBookCheckedOut} isCheckedOut={isBookCheckedOut} />
+            isAuthenticated={authState?.isAuthenticated} isCheckedOut={isBookCheckedOut} hasUserLeftReview={hasUserLeftReview}
+            checkoutBookHandler= {checkoutBookHandler} postReviewHandler={postReviewHandler} />
         </div>
         <hr />
         <LatestReviews reviews={reviews} bookId={book?.id} mobile={false} />
@@ -90,9 +114,9 @@ const BookCheckoutPage = () => {
             <StarReview rating={totalStars} size={32} />
           </div>
         </div>
-        <CheckoutAndReviewBox book={book} mobile={true} currentLoansCount={currentLoansCount}
-          isAuthenticated={authState?.isAuthenticated} accessToken={authState?.accessToken?.accessToken}
-          setIsBookCheckedOut={setIsBookCheckedOut} isCheckedOut={isBookCheckedOut} />
+        <CheckoutAndReviewBox book={book} mobile={false} currentLoansCount={currentLoansCount}
+            isAuthenticated={authState?.isAuthenticated} isCheckedOut={isBookCheckedOut} hasUserLeftReview={hasUserLeftReview}
+            checkoutBookHandler= {checkoutBookHandler} postReviewHandler={postReviewHandler} />
         <hr />
         <LatestReviews reviews={reviews} bookId={book?.id} mobile={true} />
       </div>

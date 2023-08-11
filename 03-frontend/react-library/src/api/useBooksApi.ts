@@ -3,6 +3,7 @@ import axios from 'axios'
 import BookModel from '../models/BookModel'
 import ReviewModel from '../models/ReviewModel'
 import { useOktaAuth } from '@okta/okta-react'
+import ReviewRequestModel from '../models/ReviewRequestModel'
 
 type booksProps = {
   currentPage: number,
@@ -11,12 +12,26 @@ type booksProps = {
 }
 type singleBookProps = {
   bookId: string | undefined,
-  isBookCheckedOut: boolean
+  isBookCheckedOut: boolean,
+  hasUserLeftReview: boolean
 }
 
 type isBookCheckoutProps = {
   bookId: string | undefined,
   setIsBookCheckedOut: (value: boolean) => void
+}
+
+type hasUserLeftReviewProps = {
+  bookId: string | undefined,
+  setHasUserLeftReview: (value: boolean) => void
+}
+
+type postReviewProps = {
+  rating: number,
+  bookId: number,
+  reviewDescription: string,
+  setHasUserLeftReview: (value: boolean) => void,
+  accessToken: string | undefined
 }
 
 type buttonCheckOutHandlerProps = {
@@ -51,6 +66,11 @@ type useCurrentLoansCountReturnType = {
 type useIsBookCheckedOutReturnType = {
   isLoadingIsBookCheckedOut: boolean,
   isBookCheckedOutHttpError: null | Error
+}
+
+type useHasUserLeftReviewReturnType = {
+  isLoadingHasUserLeftReview: boolean,
+  isLoadingHasUserLeftReviewHttpError: null | Error
 }
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -173,12 +193,12 @@ export const useGetSingleBookApi = (props: singleBookProps): useSingleBookApiRet
         setIsLoadingReview(false);
         setHttpError(error.message);
       })
-  }, [])
+  }, [props.hasUserLeftReview])
 
   return { book, isLoading, httpError, reviews, totalStars, isLoadingReview }
 }
 
-export const useCurrentLoansCountApi = (props: {isBookCheckedOut:boolean}): useCurrentLoansCountReturnType => {
+export const useCurrentLoansCountApi = (props: { isBookCheckedOut: boolean }): useCurrentLoansCountReturnType => {
   const { authState } = useOktaAuth();
   const [currentLoansCount, setCurrentLoansCount] = useState(0);
   const [isLoadingCurrentLoansCount, setIsLoadingCurrentLoansCount] = useState(true);
@@ -189,7 +209,7 @@ export const useCurrentLoansCountApi = (props: {isBookCheckedOut:boolean}): useC
       const url = `${baseUrl}/api/books/secure/currentloans/count`
       axios.get(url, {
         headers: {
-          Authorization:`Bearer ${authState?.accessToken?.accessToken}`,
+          Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
           'Content-Type': 'application/json'
         }
       }).then((response) => {
@@ -204,13 +224,13 @@ export const useCurrentLoansCountApi = (props: {isBookCheckedOut:boolean}): useC
   return { currentLoansCount, isLoadingCurrentLoansCount, currentLoanCountHttpError }
 }
 
-export const useIsBookCheckout =  (props: isBookCheckoutProps): useIsBookCheckedOutReturnType => {
+export const useIsBookCheckout = (props: isBookCheckoutProps): useIsBookCheckedOutReturnType => {
   const { authState } = useOktaAuth();
   const [isLoadingIsBookCheckedOut, setIsLoadingIsBookCheckedOut] = useState(true);
   const [isBookCheckedOutHttpError, setIsBookCheckedOutHttpError] = useState(null);
 
   useEffect(() => {
-    if(authState && authState.isAuthenticated) {
+    if (authState && authState.isAuthenticated) {
       const url = `${baseUrl}/api/books/secure/ischeckedout/byuser?book_id=${props.bookId}`
       axios.get(url, {
         headers: {
@@ -228,7 +248,50 @@ export const useIsBookCheckout =  (props: isBookCheckoutProps): useIsBookChecked
   return { isLoadingIsBookCheckedOut, isBookCheckedOutHttpError }
 }
 
-export const buttonCheckOutHandler = (props: buttonCheckOutHandlerProps) => {
+export const useHasUserLeftReview = (props: hasUserLeftReviewProps): useHasUserLeftReviewReturnType => {
+  const { authState } = useOktaAuth();
+  const [isLoadingHasUserLeftReview, setIsLoadingHasUserLeftReview] = useState(true);
+  const [isLoadingHasUserLeftReviewHttpError, setIsLoadingHasUserLeftReviewHttpError] = useState(null);
+
+  useEffect(() => {
+    if (authState && authState.isAuthenticated) {
+      const url = `${baseUrl}/api/reviews/secure/hasReview?book_id=${props.bookId}`
+      axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${authState.accessToken?.accessToken}`,
+          "Content-Type": "application/json"
+      }
+      }).then ((response) => {
+        props.setHasUserLeftReview(response.data)
+        setIsLoadingHasUserLeftReview(false);
+      }).catch((error) => {
+        setIsLoadingHasUserLeftReviewHttpError(error.message);
+        setIsLoadingHasUserLeftReview(false);
+      })
+    }
+    setIsLoadingHasUserLeftReview(false);
+  }, [])
+
+  return { isLoadingHasUserLeftReview, isLoadingHasUserLeftReviewHttpError }
+}
+
+export const postReviewApi = (props: postReviewProps): void => {
+  const reviewRequestModel = new ReviewRequestModel(props.rating, props.bookId, props.reviewDescription);
+  const url = `${baseUrl}/api/reviews/secure/postreview`
+  axios.post(url, JSON.stringify(reviewRequestModel), {
+    headers: {
+      Authorization: `Bearer ${props.accessToken}`,
+      "Content-Type": "application/json"
+    }
+  }).then((response) => {
+    console.log(response)
+    props.setHasUserLeftReview(true)
+  }).catch((error)=>{
+    console.log(error.message)
+  })
+}
+
+export const checkOutBookApi = (props: buttonCheckOutHandlerProps) => {
   const url = `${baseUrl}/api/books/secure/checkout?book_id=${props.bookId}`
   axios.put(url, {}, {
     headers: {
