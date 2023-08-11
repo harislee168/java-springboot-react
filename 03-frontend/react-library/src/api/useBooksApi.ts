@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import BookModel from '../models/BookModel'
 import ReviewModel from '../models/ReviewModel'
@@ -9,6 +9,21 @@ type booksProps = {
   booksPerPage: number,
   searchUrl: string
 }
+type singleBookProps = {
+  bookId: string | undefined,
+  isBookCheckedOut: boolean
+}
+
+type isBookCheckoutProps = {
+  bookId: string | undefined,
+  setIsBookCheckedOut: (value: boolean) => void
+}
+
+type buttonCheckOutHandlerProps = {
+  bookId: number | undefined,
+  setIsBookCheckedOut: (value: boolean) => void,
+  accessToken: string | undefined
+}
 
 type useBooksApiReturnType = {
   books: BookModel[],
@@ -17,10 +32,6 @@ type useBooksApiReturnType = {
   returnTotalElements: number,
   returnTotalPages: number
 };
-
-type singleBookProps = {
-  bookId: string
-}
 
 type useSingleBookApiReturnType = {
   book: BookModel | undefined,
@@ -33,8 +44,13 @@ type useSingleBookApiReturnType = {
 
 type useCurrentLoansCountReturnType = {
   currentLoansCount: number,
-  isLoadingCurrentLoansCount: boolean;
+  isLoadingCurrentLoansCount: boolean,
   currentLoanCountHttpError: null | Error
+}
+
+type useIsBookCheckedOutReturnType = {
+  isLoadingIsBookCheckedOut: boolean,
+  isBookCheckedOutHttpError: null | Error
 }
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -122,7 +138,7 @@ export const useGetSingleBookApi = (props: singleBookProps): useSingleBookApiRet
         setIsLoading(false);
         setHttpError(error.message);
       })
-  }, [])
+  }, [props.isBookCheckedOut])
 
   useEffect(() => {
     const url = `${baseUrl}/api/reviews/search/findByBookId?bookId=${props.bookId}`
@@ -162,7 +178,7 @@ export const useGetSingleBookApi = (props: singleBookProps): useSingleBookApiRet
   return { book, isLoading, httpError, reviews, totalStars, isLoadingReview }
 }
 
-export const useCurrentLoansCountApi = (): useCurrentLoansCountReturnType => {
+export const useCurrentLoansCountApi = (props: {isBookCheckedOut:boolean}): useCurrentLoansCountReturnType => {
   const { authState } = useOktaAuth();
   const [currentLoansCount, setCurrentLoansCount] = useState(0);
   const [isLoadingCurrentLoansCount, setIsLoadingCurrentLoansCount] = useState(true);
@@ -171,26 +187,59 @@ export const useCurrentLoansCountApi = (): useCurrentLoansCountReturnType => {
   useEffect(() => {
     if (authState && authState.isAuthenticated) {
       const url = `${baseUrl}/api/books/secure/currentloans/count`
-      console.log(url);
-      console.log(authState.accessToken?.accessToken);
       axios.get(url, {
         headers: {
-          Authorization:`Bearer ${authState.accessToken?.accessToken}`,
+          Authorization:`Bearer ${authState?.accessToken?.accessToken}`,
           'Content-Type': 'application/json'
         }
       }).then((response) => {
-        console.log('response')
-        setIsLoadingCurrentLoansCount(false);
         setCurrentLoansCount(response.data);
       }).catch((error: any) => {
-        console.log('error')
-        setIsLoadingCurrentLoansCount(false);
         setCurrentLoanCountHttpError(error.message);
       })
     }
-  }, [authState])
+    setIsLoadingCurrentLoansCount(false);
+  }, [authState, props.isBookCheckedOut])
 
   return { currentLoansCount, isLoadingCurrentLoansCount, currentLoanCountHttpError }
+}
+
+export const useIsBookCheckout =  (props: isBookCheckoutProps): useIsBookCheckedOutReturnType => {
+  const { authState } = useOktaAuth();
+  const [isLoadingIsBookCheckedOut, setIsLoadingIsBookCheckedOut] = useState(true);
+  const [isBookCheckedOutHttpError, setIsBookCheckedOutHttpError] = useState(null);
+
+  useEffect(() => {
+    if(authState && authState.isAuthenticated) {
+      const url = `${baseUrl}/api/books/secure/ischeckedout/byuser?book_id=${props.bookId}`
+      axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${authState?.accessToken?.accessToken}`,
+          "Content-Type": "application/json"
+        }
+      }).then((response) => {
+        props.setIsBookCheckedOut(response.data);
+      }).catch((error) => {
+        setIsBookCheckedOutHttpError(error.message);
+      })
+    }
+    setIsLoadingIsBookCheckedOut(false);
+  }, [authState])
+  return { isLoadingIsBookCheckedOut, isBookCheckedOutHttpError }
+}
+
+export const buttonCheckOutHandler = (props: buttonCheckOutHandlerProps) => {
+  const url = `${baseUrl}/api/books/secure/checkout?book_id=${props.bookId}`
+  axios.put(url, {}, {
+    headers: {
+      Authorization: `Bearer ${props.accessToken}`,
+      "Content-Type": "application/json"
+    }
+  }).then((response) => {
+    props.setIsBookCheckedOut(true);
+  }).catch((error: any) => {
+    console.log('error: ', error.message);
+  })
 }
 
 export default useBooksApi

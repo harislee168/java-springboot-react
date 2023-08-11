@@ -1,7 +1,6 @@
-import React, { useState } from 'react'
-import { useParams } from 'react-router-dom'
-import BookModel from '../../models/BookModel'
-import { useGetSingleBookApi, useCurrentLoansCountApi } from '../../api/useBooksApi';
+import { useState } from 'react'
+import { useOktaAuth } from '@okta/okta-react';
+import { useGetSingleBookApi, useCurrentLoansCountApi, useIsBookCheckout } from '../../api/useBooksApi';
 import SpinnerLoading from '../Utils/SpinnerLoading';
 import StarReview from '../Utils/StarReview';
 import CheckoutAndReviewBox from './CheckoutAndReviewBox';
@@ -10,10 +9,14 @@ import LatestReviews from './LatestReviews';
 const BookCheckoutPage = () => {
 
   const bookId = (window.location.pathname).split('/')[2];
-  const { book, isLoading, httpError, reviews, totalStars, isLoadingReview } = useGetSingleBookApi({ bookId: bookId })
-  const { currentLoansCount, isLoadingCurrentLoansCount, currentLoanCountHttpError } = useCurrentLoansCountApi();
+  const { authState } = useOktaAuth();
+  const [isBookCheckedOut, setIsBookCheckedOut] = useState(false);
+  const { book, isLoading, httpError, reviews, totalStars, isLoadingReview } = useGetSingleBookApi({ bookId: bookId,
+    isBookCheckedOut: isBookCheckedOut })
+  const { currentLoansCount, isLoadingCurrentLoansCount, currentLoanCountHttpError } = useCurrentLoansCountApi({isBookCheckedOut:isBookCheckedOut})
+  const { isLoadingIsBookCheckedOut, isBookCheckedOutHttpError } = useIsBookCheckout( {bookId: bookId, setIsBookCheckedOut:setIsBookCheckedOut})
 
-  if (isLoading || isLoadingReview || isLoadingCurrentLoansCount) {
+  if (isLoading || isLoadingReview || isLoadingCurrentLoansCount || isLoadingIsBookCheckedOut) {
     return (
       <SpinnerLoading />
     )
@@ -31,6 +34,14 @@ const BookCheckoutPage = () => {
     return (
       <div className='container m-5'>
         <p>{currentLoanCountHttpError.toString()}</p>
+      </div>
+    )
+  }
+
+  if (isBookCheckedOutHttpError) {
+    return (
+      <div className='container m-5'>
+        <p>{isBookCheckedOutHttpError.toString()}</p>
       </div>
     )
   }
@@ -55,7 +66,9 @@ const BookCheckoutPage = () => {
               <StarReview rating={totalStars} size={32} />
             </div>
           </div>
-          <CheckoutAndReviewBox book={book} mobile={false} currentLoansCount={currentLoansCount} />
+          <CheckoutAndReviewBox book={book} mobile={false} currentLoansCount={currentLoansCount}
+            isAuthenticated={authState?.isAuthenticated} accessToken={authState?.accessToken?.accessToken}
+            setIsBookCheckedOut={setIsBookCheckedOut} isCheckedOut={isBookCheckedOut} />
         </div>
         <hr />
         <LatestReviews reviews={reviews} bookId={book?.id} mobile={false} />
@@ -77,7 +90,9 @@ const BookCheckoutPage = () => {
             <StarReview rating={totalStars} size={32} />
           </div>
         </div>
-        <CheckoutAndReviewBox book={book} mobile={true} currentLoansCount={currentLoansCount} />
+        <CheckoutAndReviewBox book={book} mobile={true} currentLoansCount={currentLoansCount}
+          isAuthenticated={authState?.isAuthenticated} accessToken={authState?.accessToken?.accessToken}
+          setIsBookCheckedOut={setIsBookCheckedOut} isCheckedOut={isBookCheckedOut} />
         <hr />
         <LatestReviews reviews={reviews} bookId={book?.id} mobile={true} />
       </div>
