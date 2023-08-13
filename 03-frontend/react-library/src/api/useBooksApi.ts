@@ -4,6 +4,7 @@ import BookModel from '../models/BookModel'
 import ReviewModel from '../models/ReviewModel'
 import { useOktaAuth } from '@okta/okta-react'
 import ReviewRequestModel from '../models/ReviewRequestModel'
+import ShelfCurrentLoansModel from '../models/ShelfCurrentLoansModel'
 
 type booksProps = {
   currentPage: number,
@@ -71,6 +72,12 @@ type useIsBookCheckedOutReturnType = {
 type useHasUserLeftReviewReturnType = {
   isLoadingHasUserLeftReview: boolean,
   isLoadingHasUserLeftReviewHttpError: null | Error
+}
+
+type useGetCurrentLoansReturnType = {
+  shelfCurrentLoans: ShelfCurrentLoansModel[],
+  isLoadingShelfCurrentLoans: boolean,
+  httpErrorShelfCurrentLoans: null | Error
 }
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -260,8 +267,8 @@ export const useHasUserLeftReview = (props: hasUserLeftReviewProps): useHasUserL
         headers: {
           Authorization: `Bearer ${authState.accessToken?.accessToken}`,
           "Content-Type": "application/json"
-      }
-      }).then ((response) => {
+        }
+      }).then((response) => {
         props.setHasUserLeftReview(response.data)
         setIsLoadingHasUserLeftReview(false);
       }).catch((error) => {
@@ -286,7 +293,7 @@ export const postReviewApi = (props: postReviewProps): void => {
   }).then((response) => {
     console.log(response)
     props.setHasUserLeftReview(true)
-  }).catch((error)=>{
+  }).catch((error) => {
     console.log(error.message)
   })
 }
@@ -303,6 +310,38 @@ export const checkOutBookApi = (props: buttonCheckOutHandlerProps) => {
   }).catch((error: any) => {
     console.log('error: ', error.message);
   })
+}
+
+export const useGetCurrentLoans = (): useGetCurrentLoansReturnType => {
+  const { authState } = useOktaAuth();
+  const [shelfCurrentLoans, setShelfCurrentLoans] = useState<ShelfCurrentLoansModel[]>([])
+  const [isLoadingShelfCurrentLoans, setIsLoadingShelfcurrentLoans] = useState(true)
+  const [httpErrorShelfCurrentLoans, setHttpErrorShelfCurrentLoans] = useState(null)
+
+  useEffect(() => {
+    const url = `${baseUrl}/api/books/secure/currentloans`
+    if (authState && authState.isAuthenticated) {
+      axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${authState.accessToken?.accessToken}`,
+          "Content-Type": "application/json"
+        }
+      })
+        .then((response) => {
+          setShelfCurrentLoans(response.data)
+          setIsLoadingShelfcurrentLoans(false);
+        })
+        .catch((error) => {
+          setHttpErrorShelfCurrentLoans(error.message);
+          setIsLoadingShelfcurrentLoans(false);
+        })
+    } else {
+      setIsLoadingShelfcurrentLoans(false);
+    }
+    window.scrollTo(0, 0);
+  }, [authState])
+
+  return { shelfCurrentLoans, isLoadingShelfCurrentLoans, httpErrorShelfCurrentLoans }
 }
 
 export default useBooksApi
