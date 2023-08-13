@@ -48,6 +48,13 @@ type returnBookHandlerProps = {
   accessToken: string | undefined
 }
 
+type renewBookHandlerProps = {
+  bookId: number | undefined,
+  checkout: boolean,
+  setCheckout: (value: boolean) => void,
+  accessToken: string | undefined
+}
+
 type useBooksApiReturnType = {
   books: BookModel[],
   isLoading: boolean,
@@ -353,6 +360,20 @@ export const useGetCurrentLoans = (props: {checkout: boolean}): useGetCurrentLoa
 
 export const returnBookApi = (props: returnBookHandlerProps) => {
   const url = `${baseUrl}/api/books/secure/return?book_id=${props.bookId}`
+  axios.put(url, {}, {
+    headers: {
+      Authorization: `Bearer ${props.accessToken}`,
+      "Content-Type": "application/json"
+    }
+  }).then((response) => {
+    props.setCheckout(!props.checkout);
+  }).catch((error: any) => {
+    console.log('error: ', error.message);
+  })
+}
+
+export const renewBookApi = (props: renewBookHandlerProps) => {
+  const url = `${baseUrl}/api/books/secure/renew/loan?book_id=${props.bookId}`
   axios.put(url, {}, {
     headers: {
       Authorization: `Bearer ${props.accessToken}`,

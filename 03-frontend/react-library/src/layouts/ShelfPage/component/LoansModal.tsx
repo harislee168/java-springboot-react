@@ -2,7 +2,7 @@ import React from 'react'
 import ShelfCurrentLoansModel from '../../../models/ShelfCurrentLoansModel'
 
 const LoansModal: React.FC<{ shelfCurrentLoanModel: ShelfCurrentLoansModel, mobile: boolean,
-  returnBookHandler: (bookId: number) => void }> = (props) => {
+  returnBookHandler: (bookId: number) => void, renewBookHandler: (bookId: number) => void }> = (props) => {
   return (
     <div className='modal fade' id={props.mobile ? `mobilemodal${props.shelfCurrentLoanModel.book.id}` :
       `modal${props.shelfCurrentLoanModel.book.id}`} data-bs-backdrop='static' data-bs-keyboard='false'
@@ -49,7 +49,9 @@ const LoansModal: React.FC<{ shelfCurrentLoanModel: ShelfCurrentLoansModel, mobi
                   </button>
                   <button data-bs-dismiss='modal'
                   className={props.shelfCurrentLoanModel.daysLeft < 0? 'list-group-item list-group-item-action inactivelink':
-                  'list-group-item list-group-item-action'}>
+                  'list-group-item list-group-item-action'}
+                  onClick={props.shelfCurrentLoanModel.daysLeft < 0? (event) => event.preventDefault()
+                    : () => props.renewBookHandler(props.shelfCurrentLoanModel.book.id)}>
                     {props.shelfCurrentLoanModel.daysLeft < 0 ? 'Late dues cannot be renewed' : 'Renew loan for 7 days'}
                   </button>
                 </div>

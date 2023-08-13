@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { returnBookApi, useGetCurrentLoans } from "../../../api/useBooksApi"
+import { returnBookApi, useGetCurrentLoans, renewBookApi } from "../../../api/useBooksApi"
 import SpinnerLoading from "../../Utils/SpinnerLoading"
 import React, {useState} from 'react'
 import LoansModal from "./LoansModal"
@@ -12,6 +12,10 @@ const Loans = () => {
   const { shelfCurrentLoans, isLoadingShelfCurrentLoans, httpErrorShelfCurrentLoans } = useGetCurrentLoans({checkout: checkout})
   const returnBookHandler = (bookId: number) => {
     returnBookApi({bookId: bookId, checkout: checkout, setCheckout: setCheckout, accessToken: authState?.accessToken?.accessToken})
+  }
+
+  const renewBookHandler = (bookId: number) => {
+    renewBookApi({bookId: bookId, checkout: checkout, setCheckout: setCheckout, accessToken: authState?.accessToken?.accessToken})
   }
 
   if (isLoadingShelfCurrentLoans) {
@@ -75,7 +79,8 @@ const Loans = () => {
                     </div>
                   </div>
                   <hr />
-                  <LoansModal shelfCurrentLoanModel={shelfCurrentLoan} mobile={false} returnBookHandler={returnBookHandler} />
+                  <LoansModal shelfCurrentLoanModel={shelfCurrentLoan} mobile={false} returnBookHandler={returnBookHandler}
+                  renewBookHandler={renewBookHandler} />
                 </div>
               )
             })}
@@ -133,7 +138,8 @@ const Loans = () => {
                     </div>
                   </div>
                   <hr />
-                  <LoansModal shelfCurrentLoanModel={shelfCurrentLoan} mobile={true} returnBookHandler={returnBookHandler} />
+                  <LoansModal shelfCurrentLoanModel={shelfCurrentLoan} mobile={true} returnBookHandler={returnBookHandler}
+                  renewBookHandler={renewBookHandler}/>
                 </div>
               )
             })}
