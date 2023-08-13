@@ -2,10 +2,13 @@ package com.lovetocode.springbootlibrary.service;
 
 import com.lovetocode.springbootlibrary.dao.BookRepository;
 import com.lovetocode.springbootlibrary.dao.CheckoutRepository;
+import com.lovetocode.springbootlibrary.dao.HistoryRepository;
 import com.lovetocode.springbootlibrary.entity.Book;
 import com.lovetocode.springbootlibrary.entity.Checkout;
+import com.lovetocode.springbootlibrary.entity.History;
 import com.lovetocode.springbootlibrary.responsemodel.ShelfCurrentLoansResponse;
 import com.nimbusds.oauth2.sdk.util.date.SimpleDate;
+import jakarta.persistence.Column;
 import org.hibernate.annotations.Check;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +27,13 @@ public class BookService {
 
     private BookRepository bookRepository;
     private CheckoutRepository checkoutRepository;
+    private HistoryRepository historyRepository;
 
-    public BookService(BookRepository bookRepository, CheckoutRepository checkoutRepository) {
+    public BookService(BookRepository bookRepository, CheckoutRepository checkoutRepository,
+                       HistoryRepository historyRepository) {
         this.bookRepository = bookRepository;
         this.checkoutRepository = checkoutRepository;
+        this.historyRepository = historyRepository;
     }
 
     public Book checkoutBook(String userEmail, Long bookId) throws Exception {
@@ -93,7 +99,13 @@ public class BookService {
             throw new Exception("Book does not exist or has never been checked out");
         }
         bookOptional.get().setCopiesAvailable(bookOptional.get().getCopiesAvailable()+1);
+        
+        History history = new History(userEmail, hasCheckout.getCheckoutDate(), LocalDate.now().toString(),
+                bookOptional.get().getTitle(), bookOptional.get().getAuthor(), bookOptional.get().getDescription(),
+                bookOptional.get().getImg());
+
         bookRepository.save(bookOptional.get());
+        historyRepository.save(history);
         checkoutRepository.deleteById(hasCheckout.getId());
     }
 
