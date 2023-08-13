@@ -48,4 +48,11 @@ public class BookController {
         String userEmail = JWTExtraction.payLoadJWTExtraction(token, "sub");
         return bookService.checkoutBook(userEmail, bookId);
     }
+
+    @PutMapping("/secure/return")
+    public void returnBook(@RequestHeader(value="Authorization") String token,
+                           @RequestParam(name="book_id") Long bookId) throws Exception {
+        String userEmail = JWTExtraction.payLoadJWTExtraction(token, "sub");
+        bookService.returnBook(userEmail, bookId);
+    }
 }

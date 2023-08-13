@@ -5,6 +5,7 @@ import com.lovetocode.springbootlibrary.dao.CheckoutRepository;
 import com.lovetocode.springbootlibrary.entity.Book;
 import com.lovetocode.springbootlibrary.entity.Checkout;
 import com.lovetocode.springbootlibrary.responsemodel.ShelfCurrentLoansResponse;
+import org.hibernate.annotations.Check;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,5 +83,16 @@ public class BookService {
             }
         }
         return shelfCurrentLoansResponses;
+    }
+
+    public void returnBook(String userEmail, Long bookId) throws Exception {
+        Optional <Book> bookOptional = bookRepository.findById(bookId);
+        Checkout hasCheckedOut = checkoutRepository.findByUserEmailAndBookId(userEmail, bookId);
+        if (bookOptional.isEmpty() || hasCheckedOut == null) {
+            throw new Exception("Book does not exist or has never been checked out");
+        }
+        bookOptional.get().setCopiesAvailable(bookOptional.get().getCopiesAvailable()+1);
+        bookRepository.save(bookOptional.get());
+        checkoutRepository.deleteById(hasCheckedOut.getId());
     }
 }
