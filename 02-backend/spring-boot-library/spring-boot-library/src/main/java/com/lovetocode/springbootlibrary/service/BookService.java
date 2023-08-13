@@ -99,7 +99,7 @@ public class BookService {
             throw new Exception("Book does not exist or has never been checked out");
         }
         bookOptional.get().setCopiesAvailable(bookOptional.get().getCopiesAvailable()+1);
-        
+
         History history = new History(userEmail, hasCheckout.getCheckoutDate(), LocalDate.now().toString(),
                 bookOptional.get().getTitle(), bookOptional.get().getAuthor(), bookOptional.get().getDescription(),
                 bookOptional.get().getImg());
