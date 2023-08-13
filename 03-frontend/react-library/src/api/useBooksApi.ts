@@ -41,6 +41,13 @@ type buttonCheckOutHandlerProps = {
   accessToken: string | undefined
 }
 
+type returnBookHandlerProps = {
+  bookId: number | undefined,
+  checkout: boolean,
+  setCheckout: (value: boolean) => void,
+  accessToken: string | undefined
+}
+
 type useBooksApiReturnType = {
   books: BookModel[],
   isLoading: boolean,
@@ -312,7 +319,7 @@ export const checkOutBookApi = (props: buttonCheckOutHandlerProps) => {
   })
 }
 
-export const useGetCurrentLoans = (): useGetCurrentLoansReturnType => {
+export const useGetCurrentLoans = (props: {checkout: boolean}): useGetCurrentLoansReturnType => {
   const { authState } = useOktaAuth();
   const [shelfCurrentLoans, setShelfCurrentLoans] = useState<ShelfCurrentLoansModel[]>([])
   const [isLoadingShelfCurrentLoans, setIsLoadingShelfcurrentLoans] = useState(true)
@@ -339,9 +346,23 @@ export const useGetCurrentLoans = (): useGetCurrentLoansReturnType => {
       setIsLoadingShelfcurrentLoans(false);
     }
     window.scrollTo(0, 0);
-  }, [authState])
+  }, [authState, props.checkout])
 
   return { shelfCurrentLoans, isLoadingShelfCurrentLoans, httpErrorShelfCurrentLoans }
+}
+
+export const returnBookApi = (props: returnBookHandlerProps) => {
+  const url = `${baseUrl}/api/books/secure/return?book_id=${props.bookId}`
+  axios.put(url, {}, {
+    headers: {
+      Authorization: `Bearer ${props.accessToken}`,
+      "Content-Type": "application/json"
+    }
+  }).then((response) => {
+    props.setCheckout(!props.checkout);
+  }).catch((error: any) => {
+    console.log('error: ', error.message);
+  })
 }
 
 export default useBooksApi

@@ -1,7 +1,8 @@
 import React from 'react'
 import ShelfCurrentLoansModel from '../../../models/ShelfCurrentLoansModel'
 
-const LoansModal: React.FC<{ shelfCurrentLoanModel: ShelfCurrentLoansModel, mobile: boolean }> = (props) => {
+const LoansModal: React.FC<{ shelfCurrentLoanModel: ShelfCurrentLoansModel, mobile: boolean,
+  returnBookHandler: (bookId: number) => void }> = (props) => {
   return (
     <div className='modal fade' id={props.mobile ? `mobilemodal${props.shelfCurrentLoanModel.book.id}` :
       `modal${props.shelfCurrentLoanModel.book.id}`} data-bs-backdrop='static' data-bs-keyboard='false'
@@ -43,7 +44,7 @@ const LoansModal: React.FC<{ shelfCurrentLoanModel: ShelfCurrentLoansModel, mobi
                 }
                 <div className='list-group mt-3'>
                   <button className='list-group-item list-group-item-action list-group-item-dark' data-bs-dismiss='modal'
-                  aria-current='true'>
+                  aria-current='true' onClick={() => props.returnBookHandler(props.shelfCurrentLoanModel.book.id)}>
                     Return book
                   </button>
                   <button data-bs-dismiss='modal'

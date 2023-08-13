@@ -1,12 +1,19 @@
 import { Link } from "react-router-dom"
-import { useGetCurrentLoans } from "../../../api/useBooksApi"
+import { returnBookApi, useGetCurrentLoans } from "../../../api/useBooksApi"
 import SpinnerLoading from "../../Utils/SpinnerLoading"
-import React from 'react'
+import React, {useState} from 'react'
 import LoansModal from "./LoansModal"
+import { useOktaAuth } from "@okta/okta-react"
 
 
 const Loans = () => {
-  const { shelfCurrentLoans, isLoadingShelfCurrentLoans, httpErrorShelfCurrentLoans } = useGetCurrentLoans()
+  const { authState } = useOktaAuth();
+  const [checkout, setCheckout] = useState(false);
+  const { shelfCurrentLoans, isLoadingShelfCurrentLoans, httpErrorShelfCurrentLoans } = useGetCurrentLoans({checkout: checkout})
+  const returnBookHandler = (bookId: number) => {
+    returnBookApi({bookId: bookId, checkout: checkout, setCheckout: setCheckout, accessToken: authState?.accessToken?.accessToken})
+  }
+
   if (isLoadingShelfCurrentLoans) {
     return (
       <SpinnerLoading />
@@ -68,7 +75,7 @@ const Loans = () => {
                     </div>
                   </div>
                   <hr />
-                  <LoansModal shelfCurrentLoanModel={shelfCurrentLoan} mobile={false} />
+                  <LoansModal shelfCurrentLoanModel={shelfCurrentLoan} mobile={false} returnBookHandler={returnBookHandler} />
                 </div>
               )
             })}
@@ -126,7 +133,7 @@ const Loans = () => {
                     </div>
                   </div>
                   <hr />
-                  <LoansModal shelfCurrentLoanModel={shelfCurrentLoan} mobile={true} />
+                  <LoansModal shelfCurrentLoanModel={shelfCurrentLoan} mobile={true} returnBookHandler={returnBookHandler} />
                 </div>
               )
             })}
