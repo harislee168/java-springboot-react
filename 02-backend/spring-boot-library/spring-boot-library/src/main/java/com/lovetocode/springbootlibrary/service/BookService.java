@@ -106,7 +106,7 @@ public class BookService {
         Date returnDate = sdf.parse(hasCheckout.getReturnDate());
         Date currentdate = sdf.parse(LocalDate.now().toString());
         if (returnDate.compareTo(currentdate) >= 0) {
-            hasCheckout.setCheckoutDate(LocalDate.now().plusDays(7).toString());
+            hasCheckout.setReturnDate(LocalDate.now().plusDays(7).toString());
             checkoutRepository.save(hasCheckout);
         }
         else {
