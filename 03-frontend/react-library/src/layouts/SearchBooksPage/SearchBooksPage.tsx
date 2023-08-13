@@ -17,7 +17,7 @@ const categoriesArray = [
 
 const SearchBooksPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [booksPerPage] = useState<number>(3)
+  const [booksPerPage] = useState<number>(5)
   const [searchText, setSearchtext] = useState<string>('')
   const [searchUrl, setSearchUrl] = useState<string>('')
   const [categorySelection, setCategorySelection] = useState<string>('Category')
