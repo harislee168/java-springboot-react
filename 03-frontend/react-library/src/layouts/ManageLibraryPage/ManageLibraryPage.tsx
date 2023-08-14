@@ -1,6 +1,7 @@
 import { useOktaAuth } from '@okta/okta-react';
 import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom';
+import AdminMessages from './components/AdminMessages';
 
 const ManageLibraryPage = () => {
   const {authState} = useOktaAuth();
@@ -54,7 +55,7 @@ const ManageLibraryPage = () => {
             {isChangeQuantityOn? <p>Change Quantity</p>:<React.Fragment></React.Fragment>}
           </div>
           <div className='tab-pane fade' id='nav-messages' role='tabpanel' aria-labelledby='nav-messages-tab'>
-            {isMessageOn?<p>Admin Messages</p>:<React.Fragment></React.Fragment>}
+            {isMessageOn?<AdminMessages />:<React.Fragment></React.Fragment>}
           </div>
         </div>
       </div>

@@ -16,7 +16,19 @@ interface useMessageApiProps {
   messagePerPage: number
 }
 
+interface useGetOpenMessagesApiProps {
+  currentPage: number,
+  messagePerPage: number
+}
+
 interface useMessageApiReturnType {
+  messages: MessageModel[],
+  isLoadingMessage: boolean,
+  httpErrorMessage: Error | null,
+  returnTotalPages: number
+}
+
+interface useGetOpenMessagesApiReturnType {
   messages: MessageModel[],
   isLoadingMessage: boolean,
   httpErrorMessage: Error | null,
@@ -77,6 +89,54 @@ const useMessageApi = (props: useMessageApiProps): useMessageApiReturnType => {
     }
     setIsLoadingMessage(false);
     window.scroll(0,0);
+  }, [authState, props.currentPage])
+  return { messages, isLoadingMessage, httpErrorMessage, returnTotalPages }
+}
+
+export const useGetOpenMessagesApi = (props: useGetOpenMessagesApiProps): useGetOpenMessagesApiReturnType => {
+  const {authState} = useOktaAuth();
+  const [messages, setMessages] = useState<MessageModel[]>([]);
+  const [isLoadingMessage, setIsLoadingMessage] = useState(true);
+  const [httpErrorMessage, setHttpErrorMessage] = useState(null);
+  const [returnTotalPages, setReturnTotalPages] = useState<number>(1);
+
+  useEffect(() => {
+    if(authState && authState.isAuthenticated) {
+      let url = `${baseUrl}/api/messages/search/findByClosed?closed=false`
+      url += `&page=${props.currentPage-1}&size=${props.messagePerPage}`
+
+      axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${authState.accessToken?.accessToken}`,
+          "Content-Type": "application/json"
+        }
+      })
+      .then((response) => {
+        const responseData =response.data._embedded.messages
+        const loadedMessages:MessageModel [] = []
+        setReturnTotalPages(response.data.page.totalPages);
+
+        for (const key in responseData) {
+          loadedMessages.push({
+            id: responseData[key].id,
+            userEmail: responseData[key].userEmail,
+            title: responseData[key].title,
+            question: responseData[key].question,
+            adminEmail: responseData[key].adminEmail,
+            response: responseData[key].response,
+            closed: responseData[key].closed
+          })
+          setMessages(loadedMessages);
+          setIsLoadingMessage(false);
+        }
+      })
+      .catch((error) => {
+        setHttpErrorMessage(error);
+        setIsLoadingMessage(false);
+      })
+    }
+    setIsLoadingMessage(false);
+    window.scroll(0, 0);
   }, [authState, props.currentPage])
   return { messages, isLoadingMessage, httpErrorMessage, returnTotalPages }
 }

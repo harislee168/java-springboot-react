@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { postMessageApi } from '../../../api/useMessageApi'
+import errorMessageComponent from '../../Utils/ErrorMessageComponent'
 
 const initialValues = {
   title: '',
@@ -13,10 +14,6 @@ const validationSchema = Yup.object({
   title: Yup.string().required(),
   question: Yup.string().required()
 })
-
-const errorMessageComponent = (props: any) => {
-  return (<div className='alert alert-danger'>{props.children}</div>)
-}
 
 const PostNewMessage = () => {
   const { authState } = useOktaAuth();
