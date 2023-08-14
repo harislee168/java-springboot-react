@@ -3,6 +3,7 @@ package com.lovetocode.springbootlibrary.config;
 import com.lovetocode.springbootlibrary.constant.ConstantVariable;
 import com.lovetocode.springbootlibrary.entity.Book;
 import com.lovetocode.springbootlibrary.entity.History;
+import com.lovetocode.springbootlibrary.entity.Message;
 import com.lovetocode.springbootlibrary.entity.Review;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -22,6 +23,7 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
         config.exposeIdsFor(Book.class);
         config.exposeIdsFor(Review.class);
         config.exposeIdsFor(History.class);
+        config.exposeIdsFor(Message.class);
 
         disableHTTPMethods(Book.class, config, theUnsupportedActions);
         disableHTTPMethods(Review.class, config, theUnsupportedActions);

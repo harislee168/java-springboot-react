@@ -10,6 +10,7 @@ import com.lovetocode.springbootlibrary.responsemodel.ShelfCurrentLoansResponse;
 import com.nimbusds.oauth2.sdk.util.date.SimpleDate;
 import jakarta.persistence.Column;
 import org.hibernate.annotations.Check;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class BookService {
     private CheckoutRepository checkoutRepository;
     private HistoryRepository historyRepository;
 
+    @Autowired
     public BookService(BookRepository bookRepository, CheckoutRepository checkoutRepository,
                        HistoryRepository historyRepository) {
         this.bookRepository = bookRepository;

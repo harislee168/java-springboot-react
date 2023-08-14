@@ -4,6 +4,7 @@ import com.lovetocode.springbootlibrary.constant.ConstantVariable;
 import com.lovetocode.springbootlibrary.requestmodel.ReviewRequest;
 import com.lovetocode.springbootlibrary.service.ReviewService;
 import com.lovetocode.springbootlibrary.utils.JWTExtraction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(ConstantVariable.BASE_URL)
@@ -13,6 +14,7 @@ public class ReviewController {
 
     private ReviewService reviewService;
 
+    @Autowired
     public ReviewController(ReviewService reviewService) {
         this.reviewService = reviewService;
     }
