@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import BookModel from '../../models/BookModel'
-import axios from 'axios'
+import React, { useState } from 'react'
 import useBooksApi from '../../api/useBooksApi'
 import SpinnerLoading from '../Utils/SpinnerLoading'
 import SearchBook from './components/SearchBook'

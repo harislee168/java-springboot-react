@@ -1,6 +1,5 @@
 import React, {useState} from 'react'
 import StarReview from './StarReview';
-import { postReviewApi } from '../../api/useBooksApi';
 
 const LeaveReview: React.FC<{postReviewHandler: (rating: number, reviewDescription: string) => void}> = (props) => {
   const [rating, setRating] = useState(0);

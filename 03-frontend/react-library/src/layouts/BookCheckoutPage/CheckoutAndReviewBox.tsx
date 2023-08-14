@@ -1,7 +1,6 @@
 import React from 'react'
 import BookModel from '../../models/BookModel'
 import { Link } from 'react-router-dom'
-import { checkOutBookApi } from '../../api/useBooksApi'
 import LeaveReview from '../Utils/LeaveReview'
 
 type buttonRenderProps = {
