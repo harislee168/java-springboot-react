@@ -7,9 +7,10 @@ import AdminMessage from './AdminMessage';
 const AdminMessages = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const paginateHandler = (pageNumber: number) => {setCurrentPage(pageNumber)};
+  const [submitResponse, setSubmitResponse] = useState(1);
 
   const { messages, isLoadingMessage, httpErrorMessage, returnTotalPages } = useGetOpenMessagesApi({
-    currentPage: currentPage, messagePerPage: 5
+    currentPage: currentPage, messagePerPage: 5, submitResponse: submitResponse
   })
 
   if (isLoadingMessage) {
@@ -35,7 +36,7 @@ const AdminMessages = () => {
           {
             messages.map((message) => {
               return(
-                <AdminMessage message={message} key={message.id}/>
+                <AdminMessage message={message} key={message.id} submitResponse={submitResponse} setSubmitResponse={setSubmitResponse}/>
               )
             })
           }
