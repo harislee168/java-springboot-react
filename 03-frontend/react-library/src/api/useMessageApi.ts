@@ -74,13 +74,6 @@ export const putMessageApi = async (props: putMessageApiProps): Promise<any> => 
   catch (err) {
     console.error(err);
   }
-
-
-
-  // if (response.status === 200) {
-  //   console.log('update submit response')
-  //   props.setSubmitResponse(props.submitResponse + 1);
-  // }
 }
 
 const useMessageApi = (props: useMessageApiProps): useMessageApiReturnType => {
@@ -133,7 +126,6 @@ export const useGetOpenMessagesApi = (props: useGetOpenMessagesApiProps): useGet
   const [returnTotalPages, setReturnTotalPages] = useState<number>(1);
 
   useEffect(() => {
-    console.log("props.submitResponse: ", props.submitResponse);
     if (authState && authState.isAuthenticated) {
       let url = `${baseUrl}/api/messages/search/findByClosed?closed=false`
       url += `&page=${props.currentPage - 1}&size=${props.messagePerPage}`
