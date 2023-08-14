@@ -2,6 +2,7 @@ package com.lovetocode.springbootlibrary.controller;
 
 import com.lovetocode.springbootlibrary.constant.ConstantVariable;
 import com.lovetocode.springbootlibrary.entity.Message;
+import com.lovetocode.springbootlibrary.requestmodel.AdminQuestionRequest;
 import com.lovetocode.springbootlibrary.service.MessageService;
 import com.lovetocode.springbootlibrary.utils.JWTExtraction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,16 @@ public class MessageController {
                             @RequestBody Message messageRequest) {
         String userEmail = JWTExtraction.payLoadJWTExtraction(token, "sub");
         messageService.postMessage(messageRequest, userEmail);
+    }
+
+    @PutMapping("/secure/admin/message")
+    public void putMessage(@RequestHeader(value="Authorization") String token,
+                           @RequestBody AdminQuestionRequest adminQuestionRequest) throws Exception {
+        String adminEmail = JWTExtraction.payLoadJWTExtraction(token, "sub");
+        String admin = JWTExtraction.payLoadJWTExtraction(token, "userType");
+        if (admin == null || !admin.equals("admin")) {
+            throw new Exception("Administration page only");
+        }
+        messageService.putMessage(adminQuestionRequest, adminEmail);
     }
 }
