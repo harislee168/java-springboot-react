@@ -53,6 +53,7 @@ const useReviewsApi = (props: useReviewsApiProps):useReviewsApiReturnType => {
         setHttpError(error.message())
         setIsLoading(false);
       })
+    setIsLoading(false);
     window.scrollTo(0, 0);
   }, [props.currentPage])
 

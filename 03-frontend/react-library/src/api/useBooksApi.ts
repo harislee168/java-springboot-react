@@ -349,9 +349,8 @@ export const useGetCurrentLoans = (props: {checkout: boolean}): useGetCurrentLoa
           setHttpErrorShelfCurrentLoans(error.message);
           setIsLoadingShelfcurrentLoans(false);
         })
-    } else {
-      setIsLoadingShelfcurrentLoans(false);
     }
+    setIsLoadingShelfcurrentLoans(false);
     window.scrollTo(0, 0);
   }, [authState, props.checkout])
 

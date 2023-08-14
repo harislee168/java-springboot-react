@@ -53,9 +53,8 @@ const useHistoriesApi = (props: useHistoriesApiProps): useHistoriesApiReturnType
           setHttpErrorHistory(error);
           setIsLoadingHistory(false);
         })
-    } else {
-      setIsLoadingHistory(false);
     }
+    setIsLoadingHistory(false);
     window.scroll(0,0);
   }, [authState, props.currentPage])
 

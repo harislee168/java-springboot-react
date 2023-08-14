@@ -13,7 +13,7 @@ const LibraryServices = () => {
           <div className='d-grid gap-2 justify-content-md-start mb-4 mb-lg-3'>
             {
               authState?.isAuthenticated ?
-                <Link className='btn btn-primary btn-lg text-white px-4 me-md-4 fw-bold' to='#'>Library Services</Link>
+                <Link className='btn btn-primary btn-lg text-white px-4 me-md-4 fw-bold' to='/message'>Library Services</Link>
                 :
                 <Link className='btn btn-primary btn-lg text-white' to='login'>Sign in</Link>
             }

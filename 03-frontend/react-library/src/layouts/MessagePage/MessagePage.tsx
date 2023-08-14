@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import PostNewMessage from './components/PostNewMessage';
+import Messages from './components/Messages';
 
 const MessagePage = () => {
   const [isMessagePageOn, setIsMessagePageOn] = useState(false);
@@ -23,8 +24,7 @@ const MessagePage = () => {
             <PostNewMessage />
           </div>
           <div className='tab-pane fade' id='nav-message' role='tabpanel' aria-labelledby='nav-message-tab'>
-            {/* {isMessagePageOn? <p>Message history</p> : <React.Fragment></React.Fragment>} */}
-            <p>Message history</p>
+            {isMessagePageOn? <Messages /> : <React.Fragment></React.Fragment>}
           </div>
         </div>
       </div>
