@@ -41,17 +41,18 @@ public class AdminService {
         bookRepository.save(book.get());
     }
 
-    public void decreaseBookQuantity(Long bookId) throws Exception {
+    public boolean decreaseBookQuantity(Long bookId) throws Exception {
         Optional<Book> book = bookRepository.findById(bookId);
         if (book.isEmpty()) {
             throw new Exception("Book does not exist");
         }
         if (book.get().getCopies() <= 0 || book.get().getCopiesAvailable() <= 0) {
-            throw new Exception("Currently there are 0 copy available for this book");
+            return false;
         }
         book.get().setCopiesAvailable(book.get().getCopiesAvailable() - 1);
         book.get().setCopies(book.get().getCopies() - 1);
         bookRepository.save(book.get());
+        return true;
     }
 
     public void postBook(AddBookRequest addBookRequest) {

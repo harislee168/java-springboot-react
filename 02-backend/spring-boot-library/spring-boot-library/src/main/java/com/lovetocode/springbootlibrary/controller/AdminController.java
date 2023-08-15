@@ -29,13 +29,13 @@ public class AdminController {
     }
 
     @PutMapping("/secure/decrease/book/quantity")
-    public void decreaseBookQuantity(@RequestHeader(value="Authorization") String token,
+    public boolean decreaseBookQuantity(@RequestHeader(value="Authorization") String token,
                                      @RequestParam(name="book_id") Long bookId) throws Exception {
         String userType = JWTExtraction.payLoadJWTExtraction(token, "userType");
         if (userType == null || !userType.equalsIgnoreCase("admin")) {
             throw new Exception("Only admin is allowed to increase the book quantity");
         }
-        adminService.decreaseBookQuantity(bookId);
+        return adminService.decreaseBookQuantity(bookId);
     }
 
     @PostMapping("/secure/add/book")
