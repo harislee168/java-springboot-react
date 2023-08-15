@@ -2,6 +2,7 @@ import React from 'react'
 import BookModel from '../../models/BookModel'
 import { Link } from 'react-router-dom'
 import LeaveReview from '../Utils/LeaveReview'
+import { maximumNumberOfLoansAllowed } from '../Utils/Constant'
 
 type buttonRenderProps = {
   isAuthenticated: boolean | undefined,
@@ -61,7 +62,7 @@ const buttonRender = (props: buttonRenderProps) => {
       return (<p><b>Book checked out. Enjoy!</b></p>)
     }
     else {
-      if (props.currentLoansCount < 5) {
+      if (props.currentLoansCount < maximumNumberOfLoansAllowed) {
         return (<button onClick={() => props.checkoutBookHandler()}
           className='btn btn-success btn-lg'>Checkout</button>)
       }

@@ -5,3 +5,5 @@ export const categoriesArray = [
   {key: 'data', value: 'Data'},
   {key: 'devops', value: 'DevOps'},
 ]
+
+export const maximumNumberOfLoansAllowed: number = 5
