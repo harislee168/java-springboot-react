@@ -1,18 +1,28 @@
 import React, { useState } from 'react'
-import useBooksApi from '../../../api/useBooksApi'
 import SpinnerLoading from '../../Utils/SpinnerLoading'
 import Pagination from '../../Utils/Pagination'
 import ChangeQuantityOfBook from './ChangeQuantityOfBook'
+import BookModel from '../../../models/BookModel'
+import { useBooksWithReloadNumberApi } from '../../../api/useBooksApi';
 
 const ChangeQuantityOfBooks = () => {
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [booksPerPage] = useState<number>(5)
+  const [reloadNumber, setReloadNumber] = useState<number>(0);
 
   const paginateHandler = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const { books, isLoading, httpError, returnTotalElements, returnTotalPages } =
-    useBooksApi({ currentPage: currentPage, booksPerPage: booksPerPage, searchUrl: '' });
+    useBooksWithReloadNumberApi({currentPage: currentPage, booksPerPage: booksPerPage, reloadNumber: reloadNumber });
+
+  if (currentPage > returnTotalPages) {
+    setCurrentPage(returnTotalPages)
+  }
+
+  const addReloadNumber = () => {
+    setReloadNumber((prevValue) => {return prevValue + 1})
+  }
 
   if (isLoading) {
     return (
@@ -40,8 +50,8 @@ const ChangeQuantityOfBooks = () => {
             <div className='mt-3'>
               <h3>Number of result: {returnTotalElements}</h3>
               <p>{indexOfCurrentFirst + 1} to {lastItem} of {returnTotalElements} items</p>
-              {books.map((book) => {
-                return (<ChangeQuantityOfBook book={book} key={book.id} />)
+              {books.map((book: BookModel) => {
+                return (<ChangeQuantityOfBook book={book} key={book.id} addReloadNumber={addReloadNumber} />)
               })}
             </div>
           </React.Fragment>

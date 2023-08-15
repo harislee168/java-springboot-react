@@ -11,6 +11,13 @@ type booksProps = {
   booksPerPage: number,
   searchUrl: string
 }
+
+type booksReloadNumberProps = {
+  currentPage: number,
+  booksPerPage: number,
+  reloadNumber: number
+}
+
 type singleBookProps = {
   bookId: string | undefined,
   isBookCheckedOut: boolean,
@@ -105,20 +112,43 @@ const useBooksApi = (props: booksProps): useBooksApiReturnType => {
 
   useEffect(() => {
     let url = `${baseUrl}/api/books`
-
     if (props.searchUrl === '') {
       url += `?page=${props.currentPage - 1}&size=${props.booksPerPage}`
     }
     else {
       url += props.searchUrl + `&page=${props.currentPage - 1}&size=${props.booksPerPage}`;
     }
+    getBooks({url, setReturnTotalElements, setReturnTotalPages, setBooks, setIsLoading, setHttpError});
+    window.scrollTo(0, 0);
+  }, [props.currentPage, props.searchUrl])
 
-    axios.get(url)
+  return { books, isLoading, httpError, returnTotalElements, returnTotalPages }
+}
+
+export const useBooksWithReloadNumberApi = (props: booksReloadNumberProps): useBooksApiReturnType => {
+  const [books, setBooks] = useState<BookModel[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [httpError, setHttpError] = useState(null);
+  const [returnTotalElements, setReturnTotalElements] = useState<number>(0);
+  const [returnTotalPages, setReturnTotalPages] = useState<number>(1);
+
+  useEffect(() => {
+    const url = `${baseUrl}/api/books?page=${props.currentPage - 1}&size=${props.booksPerPage}`
+    getBooks({url, setReturnTotalElements, setReturnTotalPages, setBooks, setIsLoading, setHttpError});
+    window.scrollTo(0, 0);
+  }, [props.currentPage, props.reloadNumber])
+
+  return { books, isLoading, httpError, returnTotalElements, returnTotalPages }
+}
+
+const getBooks = (props: {url:string, setReturnTotalElements: any, setReturnTotalPages: any,
+                  setBooks(value: BookModel[]): any, setIsLoading: any, setHttpError: any}) => {
+  axios.get(props.url)
       .then((response) => {
         const responseData = response.data._embedded.books;
         const loadedBooks: BookModel[] = [];
-        setReturnTotalElements(response.data.page.totalElements);
-        setReturnTotalPages(response.data.page.totalPages);
+        props.setReturnTotalElements(response.data.page.totalElements);
+        props.setReturnTotalPages(response.data.page.totalPages);
 
         for (const key in responseData) {
           loadedBooks.push({
@@ -132,17 +162,12 @@ const useBooksApi = (props: booksProps): useBooksApiReturnType => {
             img: responseData[key].img
           })
         }
-        setBooks(loadedBooks);
-        setIsLoading(false);
+        props.setBooks(loadedBooks);
+        props.setIsLoading(false);
+      }).catch((error: any) => {
+        props.setIsLoading(false);
+        props.setHttpError(error.message);
       })
-      .catch((error: any) => {
-        setIsLoading(false);
-        setHttpError(error.message);
-      })
-    window.scrollTo(0, 0);
-  }, [props.currentPage, props.searchUrl])
-
-  return { books, isLoading, httpError, returnTotalElements, returnTotalPages }
 }
 
 export const useGetSingleBookApi = (props: singleBookProps): useSingleBookApiReturnType => {

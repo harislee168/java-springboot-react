@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react'
 import BookModel from '../../../models/BookModel'
+import { decreaseBookQuantityApi, deleteBookApi, increaseBookQuantityApi } from '../../../api/adminBookApi';
+import { useOktaAuth } from '@okta/okta-react';
 
-const ChangeQuantityOfBook: React.FC<{ book: BookModel }> = (props, key) => {
+const ChangeQuantityOfBook: React.FC<{ book: BookModel, addReloadNumber: any }> = (props, key) => {
+  const { authState } = useOktaAuth();
   const [quantity, setQuantity] = useState<number>(0);
   const [remaining, setRemaining] = useState<number>(0);
+  const [negativeQuantity, setNegativeQuantity] = useState(false);
+  const [stillHaveLoans, setStillHaveLoans] = useState(false);
 
   useEffect(() => {
     const fetchBookInState = () => {
@@ -12,6 +17,53 @@ const ChangeQuantityOfBook: React.FC<{ book: BookModel }> = (props, key) => {
     }
     fetchBookInState();
   }, [])
+
+  const increaseQuantityButtonHandler = () => {
+    setNegativeQuantity(false);
+    increaseBookQuantityApi({ bookId: props.book.id, accessToken: authState?.accessToken?.accessToken })
+      .then((response) => {
+        if (response.status === 200) {
+          setQuantity((prevValue: number) => { return prevValue + 1 });
+          setRemaining((prevValue: number) => { return prevValue + 1 });
+        }
+      })
+  }
+
+  const decreaseQuantityButtonHandler = () => {
+    decreaseBookQuantityApi({ bookId: props.book.id, accessToken: authState?.accessToken?.accessToken })
+      .then((response) => {
+        if (response.status === 200) {
+          if (response.data === true) {
+            setQuantity((prevValue: number) => { return prevValue - 1 });
+            setRemaining((prevValue: number) => { return prevValue - 1 });
+          }
+          else {
+            setNegativeQuantity(true);
+            setTimeout(() => {
+              setNegativeQuantity(false);
+            }, 3000);
+          }
+        }
+      })
+  }
+
+  const deleteBookButtonHandler = () => {
+    deleteBookApi({ bookId: props.book.id, accessToken: authState?.accessToken?.accessToken })
+      .then((response) => {
+        if (response.status === 200) {
+          if (response.data === true) {
+            props.addReloadNumber();
+          }
+          else {
+            setStillHaveLoans(true);
+            setTimeout(() => {
+              setStillHaveLoans(false);
+            }, 3000);
+          }
+        }
+      })
+  }
+
   return (
     <div className='card mt-3 shadow p-3 mb-3 bg-body rounded'>
       <div className='row g-0'>
@@ -45,13 +97,23 @@ const ChangeQuantityOfBook: React.FC<{ book: BookModel }> = (props, key) => {
           </div>
         </div>
       </div>
+      {
+        negativeQuantity &&
+        <div className='alert alert-danger' role='alert'>Cannot decrease quantity! No more copies!</div>
+      }
+      {
+        stillHaveLoans &&
+        <div className='alert alert-danger' role='alert'>Cannot delete book! Still have some copies out for loans</div>
+      }
       <div className='mt-3 col-md-1'>
         <div className='d-flex justify-content-start'>
-          <button className='btn btn-danger btn-md m-1'>Delete</button>
+          <button className='btn btn-danger btn-md m-1' onClick={deleteBookButtonHandler}>Delete</button>
         </div>
       </div>
-      <button className='btn btn-primary btn-md m-1'>Add Quantity</button>
-      <button className='btn btn-warning btn-md m-1'>Decrease Quantity</button>
+      <button className='btn btn-primary btn-md m-1' onClick={increaseQuantityButtonHandler}>
+        Add Quantity</button>
+      <button className='btn btn-warning btn-md m-1' onClick={decreaseQuantityButtonHandler}>
+        Decrease Quantity</button>
     </div>
   )
 }
