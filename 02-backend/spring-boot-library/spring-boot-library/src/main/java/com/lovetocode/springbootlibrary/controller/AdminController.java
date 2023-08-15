@@ -18,6 +18,26 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+    @PutMapping("/secure/increase/book/quantity")
+    public void increaseBookQuantity(@RequestHeader(value="Authorization") String token,
+                                     @RequestParam(name="book_id") Long bookId) throws Exception {
+        String userType = JWTExtraction.payLoadJWTExtraction(token, "userType");
+        if (userType == null || !userType.equalsIgnoreCase("admin")) {
+            throw new Exception("Only admin is allowed to increase the book quantity");
+        }
+        adminService.increaseBookQuantity(bookId);
+    }
+
+    @PutMapping("/secure/decrease/book/quantity")
+    public void decreaseBookQuantity(@RequestHeader(value="Authorization") String token,
+                                     @RequestParam(name="book_id") Long bookId) throws Exception {
+        String userType = JWTExtraction.payLoadJWTExtraction(token, "userType");
+        if (userType == null || !userType.equalsIgnoreCase("admin")) {
+            throw new Exception("Only admin is allowed to increase the book quantity");
+        }
+        adminService.decreaseBookQuantity(bookId);
+    }
+
     @PostMapping("/secure/add/book")
     public void postBook(@RequestHeader(value="Authorization") String token,
                          @RequestBody AddBookRequest addBookRequest) throws Exception {
@@ -26,5 +46,15 @@ public class AdminController {
             throw new Exception("Only admin is allowed to add new book");
         }
         adminService.postBook(addBookRequest);
+    }
+
+    @DeleteMapping("secure/delete/book")
+    public boolean deleteBook(@RequestHeader(value="Authorization") String token,
+                              @RequestParam(name="book_id") Long bookId) throws Exception {
+        String userType = JWTExtraction.payLoadJWTExtraction(token, "userType");
+        if (userType == null || !userType.equalsIgnoreCase("admin")) {
+            throw new Exception("Only admin is allowed to add new book");
+        }
+        return adminService.deleteBook(bookId);
     }
 }

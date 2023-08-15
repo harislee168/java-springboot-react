@@ -7,9 +7,6 @@ import com.lovetocode.springbootlibrary.entity.Book;
 import com.lovetocode.springbootlibrary.entity.Checkout;
 import com.lovetocode.springbootlibrary.entity.History;
 import com.lovetocode.springbootlibrary.responsemodel.ShelfCurrentLoansResponse;
-import com.nimbusds.oauth2.sdk.util.date.SimpleDate;
-import jakarta.persistence.Column;
-import org.hibernate.annotations.Check;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,12 +63,12 @@ public class BookService {
     }
 
     public int currentLoansCount(String userEmail) {
-        return checkoutRepository.findBooksByUserEmail(userEmail).size();
+        return checkoutRepository.findByUserEmail(userEmail).size();
     }
 
     public List<ShelfCurrentLoansResponse> currentLoans(String userEmail) throws Exception {
         List<ShelfCurrentLoansResponse> shelfCurrentLoansResponses = new ArrayList<ShelfCurrentLoansResponse>();
-        List<Checkout> checkoutList = checkoutRepository.findBooksByUserEmail(userEmail);
+        List<Checkout> checkoutList = checkoutRepository.findByUserEmail(userEmail);
         List <Long> bookIdList = new ArrayList<Long>();
 
         for (Checkout checkout: checkoutList) {
