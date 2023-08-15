@@ -3,15 +3,7 @@ import useBooksApi from '../../api/useBooksApi'
 import SpinnerLoading from '../Utils/SpinnerLoading'
 import SearchBook from './components/SearchBook'
 import Pagination from '../Utils/Pagination'
-
-
-const categoriesArray = [
-  {key: 'all', value: 'All'},
-  {key: 'fe', value: 'Front End'},
-  {key: 'be', value: 'Back End'},
-  {key: 'data', value: 'Data'},
-  {key: 'devops', value: 'DevOps'},
-]
+import { categoriesArray } from '../Utils/Constant'
 
 const SearchBooksPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
