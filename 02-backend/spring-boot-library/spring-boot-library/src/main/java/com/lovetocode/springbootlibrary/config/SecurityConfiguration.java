@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
@@ -16,7 +17,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         //disable cross site forgery
-        http.csrf((csrf) -> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
 
         //protect endpoints at /api/<type>/secure
         http.authorizeHttpRequests((authorizeHttpRequests) ->
@@ -24,6 +25,7 @@ public class SecurityConfiguration {
                     .requestMatchers("/api/books/secure/**").authenticated()
                     .requestMatchers("/api/reviews/secure/**").authenticated()
                     .requestMatchers("/api/messages/secure/**").authenticated()
+                    .requestMatchers("/api/admin/secure/**").authenticated()
                     .anyRequest().permitAll())
                 .oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
 

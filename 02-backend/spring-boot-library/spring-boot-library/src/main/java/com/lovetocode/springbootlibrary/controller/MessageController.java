@@ -31,9 +31,9 @@ public class MessageController {
     public void putMessage(@RequestHeader(value="Authorization") String token,
                            @RequestBody AdminQuestionRequest adminQuestionRequest) throws Exception {
         String adminEmail = JWTExtraction.payLoadJWTExtraction(token, "sub");
-        String admin = JWTExtraction.payLoadJWTExtraction(token, "userType");
-        if (admin == null || !admin.equals("admin")) {
-            throw new Exception("Administration page only");
+        String userType = JWTExtraction.payLoadJWTExtraction(token, "userType");
+        if (userType == null || !userType.equalsIgnoreCase("admin")) {
+            throw new Exception("Only admin is allowed to respond to a question");
         }
         messageService.putMessage(adminQuestionRequest, adminEmail);
     }
