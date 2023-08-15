@@ -15,8 +15,6 @@ const LoginWidget = ({config}) => {
     return (<SpinnerLoading />)
   }
 
-  authState.isAuthenticated? console.log('is authenticated') : console.log('not authenticated')
-
   return (authState.isAuthenticated? <Redirect to={{ pathname:'/' }} />
   :
   <OktaSignInWidget config={config} onSuccess={onSuccess} onError={onError} />)
