@@ -19,6 +19,10 @@
 .env.test.local
 .env.production.local
 
+#ssl
+/ssl-localhost
+localhost.conf
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
