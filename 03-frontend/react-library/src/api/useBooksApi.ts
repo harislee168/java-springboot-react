@@ -45,6 +45,7 @@ type postReviewProps = {
 type buttonCheckOutHandlerProps = {
   bookId: number | undefined,
   setIsBookCheckedOut: (value: boolean) => void,
+  setDisplayError: (value: boolean) => void
   accessToken: string | undefined
 }
 
@@ -345,9 +346,13 @@ export const checkOutBookApi = (props: buttonCheckOutHandlerProps) => {
       "Content-Type": "application/json"
     }
   }).then((response) => {
+    props.setDisplayError(false);
     props.setIsBookCheckedOut(true);
   }).catch((error: any) => {
-    console.log('error: ', error.message);
+    if (error.response.status === 500) {
+      props.setDisplayError(true);
+    }
+    console.log('error: ', error.response);
   })
 }
 
