@@ -3,10 +3,13 @@ package com.lovetocode.springbootlibrary.service;
 import com.lovetocode.springbootlibrary.dao.BookRepository;
 import com.lovetocode.springbootlibrary.dao.CheckoutRepository;
 import com.lovetocode.springbootlibrary.dao.HistoryRepository;
+import com.lovetocode.springbootlibrary.dao.PaymentRepository;
 import com.lovetocode.springbootlibrary.entity.Book;
 import com.lovetocode.springbootlibrary.entity.Checkout;
 import com.lovetocode.springbootlibrary.entity.History;
+import com.lovetocode.springbootlibrary.entity.Payment;
 import com.lovetocode.springbootlibrary.responsemodel.ShelfCurrentLoansResponse;
+import org.hibernate.annotations.Check;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +29,15 @@ public class BookService {
     private BookRepository bookRepository;
     private CheckoutRepository checkoutRepository;
     private HistoryRepository historyRepository;
+    private PaymentRepository paymentRepository;
 
     @Autowired
     public BookService(BookRepository bookRepository, CheckoutRepository checkoutRepository,
-                       HistoryRepository historyRepository) {
+                       HistoryRepository historyRepository, PaymentRepository paymentRepository) {
         this.bookRepository = bookRepository;
         this.checkoutRepository = checkoutRepository;
         this.historyRepository = historyRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     public Book checkoutBook(String userEmail, Long bookId) throws Exception {
@@ -41,6 +46,11 @@ public class BookService {
 
         if (book.isEmpty() || validateCheckout != null || book.get().getCopiesAvailable() <= 0) {
             throw new Exception("Book doesn't exist or already checked out by user");
+        }
+
+        //check if the user has late return, if has cannot borrow
+        if (checkLateReturn(userEmail)) {
+            throw new Exception("User need to return the late book before able to borrow");
         }
 
         //reduce the book copies available by 1
@@ -54,6 +64,41 @@ public class BookService {
         checkoutRepository.save(checkout);
 
         return book.get();
+    }
+
+    private boolean checkLateReturn(String userEmail) throws Exception {
+        boolean hasLateReturn = false;
+        //first check if user has record in payment
+        Payment payment = paymentRepository.findByUserEmail(userEmail);
+        if (payment != null && payment.getAmount() > 0){
+            hasLateReturn = true;
+            return hasLateReturn;
+        }
+
+        //if no late payment record, check user checkout if anything late
+        List <Checkout> checkoutList = checkoutRepository.findByUserEmail(userEmail);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date currentDate = sdf.parse(LocalDate.now().toString());
+        TimeUnit timeUnit = TimeUnit.DAYS;
+
+        for (Checkout checkout: checkoutList) {
+            Date returnedDate = sdf.parse(checkout.getReturnDate());
+            double differenceInTime = timeUnit.convert((returnedDate.getTime() - currentDate.getTime()), TimeUnit.MILLISECONDS);
+            if (differenceInTime < 0) {
+                hasLateReturn = true;
+                break;
+            }
+        }
+
+        //if has late return need to create record into payment for this user if still does not exist
+        if (hasLateReturn && payment == null) {
+            Payment newPayment = new Payment();
+            newPayment.setUserEmail(userEmail);
+            newPayment.setAmount(00.00);
+            paymentRepository.save(newPayment);
+        }
+
+        return hasLateReturn;
     }
 
     //to check if the book has been checked out by user
@@ -104,6 +149,19 @@ public class BookService {
                 bookOptional.get().getImg());
 
         bookRepository.save(bookOptional.get());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date currentDate = sdf.parse(LocalDate.now().toString());
+        Date returnedDate = sdf.parse(hasCheckout.getReturnDate());
+        TimeUnit timeUnit = TimeUnit.DAYS;
+
+        double differenceInTime = timeUnit.convert((returnedDate.getTime() - currentDate.getTime()), TimeUnit.MILLISECONDS);
+        if(differenceInTime < 0) {
+            Payment payment = paymentRepository.findByUserEmail(userEmail);
+            payment.setAmount(payment.getAmount() + (differenceInTime * -1));
+            paymentRepository.save(payment);
+        }
+
         historyRepository.save(history);
         checkoutRepository.deleteById(hasCheckout.getId());
     }
