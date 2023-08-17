@@ -1,13 +1,11 @@
 package com.lovetocode.springbootlibrary.controller;
 
-import com.lovetocode.springbootlibrary.constant.ConstantVariable;
 import com.lovetocode.springbootlibrary.requestmodel.AddBookRequest;
 import com.lovetocode.springbootlibrary.service.AdminService;
 import com.lovetocode.springbootlibrary.utils.JWTExtraction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(ConstantVariable.BASE_URL)
 @RestController
 @RequestMapping(value="/api/admin")
 public class AdminController {

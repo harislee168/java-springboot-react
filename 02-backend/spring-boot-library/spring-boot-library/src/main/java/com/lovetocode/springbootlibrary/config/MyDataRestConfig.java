@@ -1,18 +1,24 @@
 package com.lovetocode.springbootlibrary.config;
 
-import com.lovetocode.springbootlibrary.constant.ConstantVariable;
 import com.lovetocode.springbootlibrary.entity.Book;
 import com.lovetocode.springbootlibrary.entity.History;
 import com.lovetocode.springbootlibrary.entity.Message;
 import com.lovetocode.springbootlibrary.entity.Review;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class MyDataRestConfig implements RepositoryRestConfigurer {
+@EnableWebMvc
+public class MyDataRestConfig implements RepositoryRestConfigurer, WebMvcConfigurer {
+
+    @Value("${BASE_URL}")
+    private String baseUrl;
 
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config,
@@ -27,8 +33,13 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
 
         disableHTTPMethods(Book.class, config, theUnsupportedActions);
         disableHTTPMethods(Review.class, config, theUnsupportedActions);
+        cors.addMapping(config.getBasePath()+ "/**").allowedOrigins(baseUrl);
+    }
 
-        cors.addMapping(config.getBasePath()+ "/**").allowedOrigins(ConstantVariable.BASE_URL);
+    @Override
+    public void addCorsMappings(CorsRegistry cors) {
+        cors.addMapping("/**").allowedOrigins(baseUrl)
+                .allowedMethods("GET", "POST", "PUT", "DELETE");
     }
 
     private void disableHTTPMethods(Class theClass, RepositoryRestConfiguration config,

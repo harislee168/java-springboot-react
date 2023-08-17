@@ -1,6 +1,5 @@
 package com.lovetocode.springbootlibrary.controller;
 
-import com.lovetocode.springbootlibrary.constant.ConstantVariable;
 import com.lovetocode.springbootlibrary.requestmodel.PaymentInfoRequest;
 import com.lovetocode.springbootlibrary.service.PaymentService;
 import com.lovetocode.springbootlibrary.utils.JWTExtraction;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(ConstantVariable.BASE_URL)
 @RestController
 @RequestMapping(value="api/payment")
 public class PaymentController {
