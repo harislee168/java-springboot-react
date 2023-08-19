@@ -9,7 +9,6 @@ import com.lovetocode.springbootlibrary.entity.Checkout;
 import com.lovetocode.springbootlibrary.entity.History;
 import com.lovetocode.springbootlibrary.entity.Payment;
 import com.lovetocode.springbootlibrary.responsemodel.ShelfCurrentLoansResponse;
-import org.hibernate.annotations.Check;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
